@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Tracker</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_name">Fullname</string>
+    <string name="btn_login">LOGIN</string>
+    <string name="btn_register">REGISTER</string>
+    <string name="btn_link_register">Not a member, sign up.</string>
+    <string name="btn_link_login">Already registered! Login.</string>
+    <string name="welcome">Welcome</string>
+    <string name="btn_logout">L0GOUT</string>
+    <string name="name">Fullname</string>
+
+</resources>
