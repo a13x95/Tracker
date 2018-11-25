@@ -1,4 +1,4 @@
-package afinal.licenta.tracker;
+package com.licenta.tracker;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("afinal.licenta.tracker", appContext.getPackageName());
+        assertEquals("com.licenta.tracker", appContext.getPackageName());
     }
 }

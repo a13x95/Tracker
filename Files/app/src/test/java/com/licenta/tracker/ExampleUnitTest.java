@@ -1,4 +1,4 @@
-package afinal.licenta.tracker;
+package com.licenta.tracker;
 
 import org.junit.Test;
 

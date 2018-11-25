@@ -1,5 +1,8 @@
-package app;
-
+package com.licenta.tracker.app;
+/*
+* This class is extended from Application and it's executed on app lunch.
+* Here we initialize the volley library core objects.
+* */
 import android.app.Application;
 import android.text.TextUtils;
 
@@ -20,6 +23,10 @@ public class AppController extends Application {
         instance = this;
     }
 
+    public static synchronized AppController getInstance(){
+        return instance;
+    }
+
     public RequestQueue getRequestQueue(){
         if(requestQueue == null){
             requestQueue = Volley.newRequestQueue(getApplicationContext());
@@ -28,12 +35,10 @@ public class AppController extends Application {
         return requestQueue;
     }
 
-    public <T> void addToRequestQueue (Request <T> request, String tag){
-        if(TextUtils.isEmpty(tag))
-            request.setTag(TAG);
-        else
-            request.setTag(tag);
-        request.setTag(TextUtils.isEmpty(tag));
+    public <T> void addToRequestQueue(Request <T> request, String tag){
+
+        request.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
+        getRequestQueue().add(request);
     }
 
     public <T> void addToRequestQueue(Request<T> request){
@@ -41,7 +46,7 @@ public class AppController extends Application {
         getRequestQueue().add(request);
     }
 
-    public void cancelPendingRequest( Object tag){
+    public void cancelPendingRequest(Object tag){
         if(requestQueue != null)
             requestQueue.cancelAll(tag);
     }

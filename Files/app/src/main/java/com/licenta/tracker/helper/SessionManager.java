@@ -1,13 +1,14 @@
-package helper;
-
+package com.licenta.tracker.helper;
+/*
+* This class maintains session data across the app using the Shared Preferences,
+* by storing a boolean flag "isLoggedIn" to check the login status.
+* */
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-/*
-** This class maintains session data across the app using SharedPreferences. We store a boolean flag isLoggedIn in shared preferences to check the login status.
- */
-public class SessionManager
-{
+import android.util.Log;
+
+public class SessionManager{
     //LogCat tag
     private static String TAG = SessionManager.class.getSimpleName();
 
@@ -31,10 +32,11 @@ public class SessionManager
         editor = preferences.edit();
     }
 
-    public void SetLoggin(boolean isLoggedIn){
+    public void setLoggin(boolean isLoggedIn){
         editor.putBoolean(KEY_IS_LOGGEDIN, isLoggedIn);
         //commit changes
         editor.commit();
+        Log.d(TAG,"User login session modified!");
     }
 
     public boolean isLoggedIn(){

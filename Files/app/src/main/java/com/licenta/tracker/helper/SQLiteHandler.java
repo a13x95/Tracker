@@ -1,5 +1,9 @@
-package helper;
-
+package com.licenta.tracker.helper;
+/*
+* This class takes care of storing user data in SQLite database.
+* Whenever we need to get the logged in user information,
+* we are fetching from SQLite instead of making request to server.
+* */
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -42,7 +46,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
                 + KEY_CREATED_AT + " TEXT" + ")";
         db.execSQL(CREATE_LOGIN_TABLE);
 
-        Log.d(TAG, "Database tables created");
+        Log.d(TAG, "Database table created");
     }
 
     // Upgrading database
