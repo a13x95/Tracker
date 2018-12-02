@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.licenta.tracker.activity.LoginActivity;
+import com.licenta.tracker.activity.OSM_MapActivity;
 import com.licenta.tracker.helper.SQLiteHandler;
 import com.licenta.tracker.helper.SessionManager;
 
@@ -18,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView txtName;
     private TextView txtEmail;
     private Button btnLogout;
+    private Button btnMap;
 
     private SQLiteHandler db;
     private SessionManager session;
@@ -30,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
         txtName = (TextView) findViewById(R.id.name);
         txtEmail = (TextView) findViewById(R.id.email);
         btnLogout = (Button) findViewById(R.id.btnLogout);
+        btnMap = (Button) findViewById(R.id.btnMap);
 
         //SQLite database handler
 
@@ -58,6 +61,12 @@ public class MainActivity extends AppCompatActivity {
                 logoutUser();
             }
         });
+        btnMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToMap();
+            }
+        });
     }
     /*
     * Loggin out the user. Will set isLoggedIn flag to false in shared preferences and will clear data from users table
@@ -69,6 +78,13 @@ public class MainActivity extends AppCompatActivity {
 
         //Launching the Login activity
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    private void goToMap(){
+        //Lunch the OSM_Map activity
+        Intent intent = new Intent(MainActivity.this, OSM_MapActivity.class);
         startActivity(intent);
         finish();
     }
