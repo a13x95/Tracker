@@ -38,6 +38,10 @@
             android:label="@string/app_name"
             android:launchMode="singleTop" />
         <activity android:name=".activity.OSM_MapActivity"></activity>
+
+        <!-- Add the service created in services package !-->
+        <service android:name=".helper.LocationServiceHandler"/>
+
     </application>
 
 </manifest>
