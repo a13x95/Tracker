@@ -18,7 +18,7 @@ import org.osmdroid.util.GeoPoint;
 
 public class LocationServiceHandler extends Service {
     private static final String TAG = LocationServiceHandler.class.getSimpleName();
-    private static final long MIN_DISTANCE_UPDATE = 0; //Minimum distance for updates in meters 0
+    private static final long MIN_DISTANCE_UPDATE = 10; //Minimum distance for updates in meters 0
     private static final long MIN_TIME_UPDATE = 5000; //Minimum time for location updates in milliseconds 5s
     GpsLocationBinder gpsLocationBinder = new GpsLocationBinder();
     LocationManager locationManager;
@@ -27,12 +27,16 @@ public class LocationServiceHandler extends Service {
     boolean network;
     double latitude;
     double longitude;
+    double altitude;
+    double speed;
 
     public LocationServiceHandler() {
         gps = false;
         network = false;
         latitude = 0.0;
         longitude = 0.0;
+        altitude = 0.0;
+        speed = 0.0;
     }
 
     @Override
@@ -43,6 +47,8 @@ public class LocationServiceHandler extends Service {
                 if (location != null) {
                     latitude = location.getLatitude();
                     longitude = location.getLongitude();
+                    altitude = location.getAltitude();
+                    speed = location.getSpeed();
                 }
             }
 
@@ -125,8 +131,10 @@ public class LocationServiceHandler extends Service {
     public GeoPoint getLocation(){
         GeoPoint gpsCoordinates = new GeoPoint(0.0,0.0);
         gpsCoordinates.setCoords(latitude,longitude);
+        gpsCoordinates.setAltitude(altitude);
         return gpsCoordinates;
     }
     public boolean getGpsStatus(){return gps;}
     public boolean getNetworkStatus(){return network;}
+    public double getSpeed(){return speed;}
 }

@@ -32,6 +32,12 @@
             android:layout_height="wrap_content"
             android:textSize="13dp" />
 
+        <TextView
+            android:id="@+id/user_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="13dp" />
+
         <Button
             android:id="@+id/btnLogout"
             android:layout_width="fill_parent"
@@ -44,11 +50,11 @@
             android:textSize="15dp" />
 
         <Button
-            android:id="@+id/btnMap"
+            android:id="@+id/btnStartActivity"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dip"
-            android:background="@color/btn_map_bg"
+            android:background="@color/btn_start_activity_bg"
             android:text="@string/btn_map"
             android:textAllCaps="false"
             android:textColor="@color/white"

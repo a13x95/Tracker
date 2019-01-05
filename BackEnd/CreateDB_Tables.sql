@@ -11,4 +11,24 @@ create table users ( /* Table Users */
     salt varchar(10) not null,
     created_at datetime,
     updated_at datetime null
-); 
+);
+
+create table tracking_activities (
+	id int(11) PRIMARY KEY AUTO_INCREMENT,
+	track_id varchar(23) not null UNIQUE,
+	user_id varchar(23) not null,
+	latitude double not null default 0.0,
+	longitude double not null default 0.0,
+	altitude int not null default 0,
+	current_speed int not null default 0,
+	time_stamp timestamp default CURRENT_TIMESTAMP
+);
+
+create table activities_details(
+	id int(11) PRIMARY KEY AUTO_INCREMENT,
+	user_id varchar(23) not null,
+	track_id varchar(23) not null,
+	description varchar(500) not null, 
+	total_time varchar (100) not null,
+	toatal_distance double not null
+);

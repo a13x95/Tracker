@@ -16,10 +16,11 @@ import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
 
+    private TextView txtID;
     private TextView txtName;
     private TextView txtEmail;
     private Button btnLogout;
-    private Button btnMap;
+    private Button btnStartActivity;
 
     private SQLiteHandler db;
     private SessionManager session;
@@ -29,10 +30,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        txtID = (TextView) findViewById(R.id.user_id);
         txtName = (TextView) findViewById(R.id.name);
         txtEmail = (TextView) findViewById(R.id.email);
         btnLogout = (Button) findViewById(R.id.btnLogout);
-        btnMap = (Button) findViewById(R.id.btnMap);
+        btnStartActivity = (Button) findViewById(R.id.btnStartActivity);
 
         //SQLite database handler
 
@@ -47,10 +49,12 @@ public class MainActivity extends AppCompatActivity {
 
         //Fetching user details from SQLite
         HashMap<String, String> user = db.getUserDetails();
+        String userID = user.get("uid");
         String name = user.get("name");
         String email = user.get("email");
 
         //Displaying the user details on the screen
+        txtID.setText(userID);
         txtName.setText(name);
         txtEmail.setText(email);
 
@@ -61,10 +65,10 @@ public class MainActivity extends AppCompatActivity {
                 logoutUser();
             }
         });
-        btnMap.setOnClickListener(new View.OnClickListener() {
+        btnStartActivity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                goToMap();
+                startTracking();
             }
         });
     }
@@ -82,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
-    private void goToMap(){
+    private void startTracking(){
         //Lunch the OSM_Map activity
         Intent intent = new Intent(MainActivity.this, OSM_MapActivity.class);
         startActivity(intent);

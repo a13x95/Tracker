@@ -9,7 +9,6 @@
     <string name="btn_link_login">Already registered! Login.</string>
     <string name="welcome">Welcome</string>
     <string name="btn_logout">L0GOUT</string>
-    <string name="btn_map">MAP</string>
+    <string name="btn_map">START</string>
     <string name="name">Fullname</string>
-
 </resources>
