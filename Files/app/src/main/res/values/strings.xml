@@ -10,5 +10,7 @@
     <string name="welcome">Welcome</string>
     <string name="btn_logout">L0GOUT</string>
     <string name="btn_map">START</string>
+    <string name="btn_stop_activity">STOP</string>
+    <string name="take_a_photo">Photo</string>
     <string name="name">Fullname</string>
 </resources>

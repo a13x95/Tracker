@@ -18,7 +18,7 @@ import org.osmdroid.util.GeoPoint;
 
 public class LocationServiceHandler extends Service {
     private static final String TAG = LocationServiceHandler.class.getSimpleName();
-    private static final long MIN_DISTANCE_UPDATE = 10; //Minimum distance for updates in meters 0
+    private static final long MIN_DISTANCE_UPDATE = 10; //Minimum distance for updates in meters 10
     private static final long MIN_TIME_UPDATE = 5000; //Minimum time for location updates in milliseconds 5s
     GpsLocationBinder gpsLocationBinder = new GpsLocationBinder();
     LocationManager locationManager;
@@ -29,6 +29,8 @@ public class LocationServiceHandler extends Service {
     double longitude;
     double altitude;
     double speed;
+    double distanceContor;
+    Location locationStartPoint;
 
     public LocationServiceHandler() {
         gps = false;
@@ -37,6 +39,9 @@ public class LocationServiceHandler extends Service {
         longitude = 0.0;
         altitude = 0.0;
         speed = 0.0;
+        distanceContor = 0.0;
+        locationStartPoint = null;
+
     }
 
     @Override
@@ -44,11 +49,15 @@ public class LocationServiceHandler extends Service {
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+                if(locationStartPoint == null){
+                    locationStartPoint = location;
+                }
                 if (location != null) {
                     latitude = location.getLatitude();
                     longitude = location.getLongitude();
                     altitude = location.getAltitude();
                     speed = location.getSpeed();
+                    distanceContor += location.distanceTo(locationStartPoint);
                 }
             }
 
@@ -133,6 +142,10 @@ public class LocationServiceHandler extends Service {
         gpsCoordinates.setCoords(latitude,longitude);
         gpsCoordinates.setAltitude(altitude);
         return gpsCoordinates;
+    }
+
+    public double getDistanceContor(){
+        return distanceContor;
     }
     public boolean getGpsStatus(){return gps;}
     public boolean getNetworkStatus(){return network;}

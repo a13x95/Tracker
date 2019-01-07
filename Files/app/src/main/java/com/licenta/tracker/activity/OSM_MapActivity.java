@@ -9,11 +9,12 @@ import android.content.ServiceConnection;
 import android.location.LocationManager;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.licenta.tracker.R;
@@ -34,6 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 
 public class OSM_MapActivity extends AppCompatActivity {
@@ -41,8 +43,13 @@ public class OSM_MapActivity extends AppCompatActivity {
     private IMapController mapController;
     private MyLocationNewOverlay locationOverlay;
     private GeoPoint geoPoint;
+    private GeoPoint startPoint;
+    private GeoPoint endPoint;
     private TextView gpsLatitude;
     private TextView gpsLongitude;
+    private TextView txtElapsedTime;
+    private TextView txtGPSCurrentDistance;
+    private Button btnStopActivity;
     private boolean bound = false;
     private List<GeoPoint> geoPointsList = new ArrayList<>();
     private Polyline polyline = new Polyline();
@@ -51,6 +58,8 @@ public class OSM_MapActivity extends AppCompatActivity {
     private JSONArray jsonArray = new JSONArray();
     private JSONObject jsonObject = new JSONObject();
     private Double currentSpeed = 0.0;
+    private long startTime, timeInMilliseconds = 0;
+    private Handler timerHandler = new Handler();
 
     LocationServiceHandler mLocationServiceHandler = new LocationServiceHandler();
 
@@ -115,12 +124,17 @@ public class OSM_MapActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         geoPoint = new GeoPoint(0.0, 0.0);
+        startPoint = new GeoPoint(0.0, 0.0);
+        endPoint = new GeoPoint(0.0, 0.0);
 
         //Context context = getApplicationContext();//load/initialize the osmdroid configuration,
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));//used for tiles
         setContentView(R.layout.activity_osm_map);
         gpsLatitude = (TextView)findViewById(R.id.gps_latitude);
         gpsLongitude = (TextView)findViewById(R.id.gps_longitude);
+        txtGPSCurrentDistance = (TextView) findViewById(R.id.current_distance);
+        txtElapsedTime = (TextView) findViewById(R.id.time_contor);
+        btnStopActivity = (Button) findViewById(R.id.stop_activity);
         map = (MapView) findViewById(R.id.map);
         locationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(this),map);
         map.setTileSource(TileSourceFactory.MAPNIK);
@@ -130,6 +144,7 @@ public class OSM_MapActivity extends AppCompatActivity {
         mapController.setZoom(15);
         locationOverlay.enableMyLocation();
         map.getOverlayManager().add(locationOverlay);
+        startTimer();
         showGPSCoordinates();
     }
 
@@ -145,10 +160,14 @@ public class OSM_MapActivity extends AppCompatActivity {
                 if(mLocationServiceHandler !=null){
                     geoPoint = mLocationServiceHandler.getLocation();
                     if(geoPoint.getLatitude() != 0.0 && geoPoint.getLongitude() != 0.0){
+                        if(startPoint.getLatitude() == 0.0 && startPoint.getLongitude() == 0.0){
+                            startPoint = geoPoint;
+                        }
                         geoPointsList.add(geoPoint);
                         setCurrentSpeed(mLocationServiceHandler.getSpeed());
                     }
                 }
+                txtGPSCurrentDistance.setText(String.valueOf(mLocationServiceHandler.getDistanceContor()) + " m");
                 mapController.setCenter(geoPoint);
                 gpsLatitude.setText(String.valueOf(geoPoint.getLatitude()));
                 gpsLongitude.setText(String.valueOf(geoPoint.getLongitude()));
@@ -213,6 +232,26 @@ public class OSM_MapActivity extends AppCompatActivity {
 //                e.printStackTrace();
 //            }
         }
+    }
+
+    public void startTimer(){
+        startTime = SystemClock.uptimeMillis();
+        timerHandler.postDelayed(timerThread, 0);
+    }
+
+    private Runnable timerThread = new Runnable() {
+        @Override
+        public void run() {
+            timeInMilliseconds = SystemClock.uptimeMillis() - startTime;
+            txtElapsedTime.setText(getFormatInMilliseconds(timeInMilliseconds));
+            timerHandler.postDelayed(this, 1000);
+        }
+    };
+
+    public String getFormatInMilliseconds(long var){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return dateFormat.format(var);
     }
 
     public String getTimestamp(String format) {
