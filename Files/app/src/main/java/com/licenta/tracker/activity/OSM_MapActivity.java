@@ -14,6 +14,8 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -146,6 +148,25 @@ public class OSM_MapActivity extends AppCompatActivity {
         map.getOverlayManager().add(locationOverlay);
         startTimer();
         showGPSCoordinates();
+
+        //Stop activity click event
+        btnStopActivity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //In this event we want  to open a new activity that will contain all the data that has been tracked
+                try {
+                    jsonObject.put("gps_data", jsonArray);
+                    Log.d("JSON", jsonObject.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                Intent startActivityIntent = new Intent(OSM_MapActivity.this, SaveTrackActivity.class);
+                startActivityIntent.putExtra("JSONObjectWithGPSData", jsonObject.toString());
+                startActivity(startActivityIntent);
+                finish();
+            }
+        });
     }
 
     private void showGPSCoordinates() {

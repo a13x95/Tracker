@@ -57,12 +57,12 @@
         <Button
             android:id="@+id/btnLinkToRegisterScreen"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dip"
-            android:background="@null"
-            android:text="@string/btn_link_register"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:textSize="15dp" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dip"
+        android:background="@null"
+        android:text="@string/btn_link_register"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="15dp" />
     </LinearLayout>
 </LinearLayout>
