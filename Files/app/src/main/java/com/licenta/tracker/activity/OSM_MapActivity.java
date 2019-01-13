@@ -155,6 +155,10 @@ public class OSM_MapActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //In this event we want  to open a new activity that will contain all the data that has been tracked
                 try {
+                    jsonObject.put("total_distance", String.valueOf(mLocationServiceHandler.getDistanceContor()) + " m");
+                    jsonObject.put("total_time", getFormatInMilliseconds(timeInMilliseconds));
+                    jsonObject.put("avg_time", getAverageTime(Integer.parseInt(String.valueOf(mLocationServiceHandler.getDistanceContor()).split("\\.")[0]), getSeconds(getFormatInMilliseconds(timeInMilliseconds))));
+                    //jsonObject.put("avg_time", getAverageTime(4500,getSeconds("00:24:30"))); //example to check functions
                     jsonObject.put("gps_data", jsonArray);
                     Log.d("JSON", jsonObject.toString());
                 } catch (JSONException e) {
@@ -245,13 +249,6 @@ public class OSM_MapActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
-//            try {
-//                jsonObject.put("gps_data", jsonArray);
-//                Log.d("JSON", jsonObject.toString());
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
         }
     }
 
@@ -289,6 +286,23 @@ public class OSM_MapActivity extends AppCompatActivity {
 
     public void setCurrentSpeed(Double currentSpeed) {
         this.currentSpeed = currentSpeed;
+    }
+
+    private String getAverageTime(int distanceInMeters, int timeInSeconds){
+        if(distanceInMeters>0){
+            double division = ((double)timeInSeconds)/distanceInMeters;
+            String minutes = String.valueOf(((double)Integer.parseInt(String.valueOf(division).split("\\.")[1].substring(0,3)))/60).split("\\.")[0];
+            String seconds  = String.valueOf(Integer.parseInt(String.valueOf(division).split("\\.")[1].substring(0,3)) - (Integer.parseInt(minutes) *60));
+
+            return minutes + ":" + seconds + " Min/km";
+        }
+        else return getFormatInMilliseconds(timeInMilliseconds) + " Min/km";
+    }
+
+    private int getSeconds(String timer){
+        int minutes = Integer.parseInt(timer.split(":")[1]);
+        int seconds = Integer.parseInt(timer.split(":")[2]);
+        return (minutes*60)+seconds;
     }
 
 }

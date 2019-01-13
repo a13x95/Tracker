@@ -4,15 +4,48 @@
     android:layout_height="fill_parent"
     android:orientation="vertical">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/jsonexampletxtview"/>
+    <org.osmdroid.views.MapView
+        android:id="@+id/saveActivityMap"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:padding="10dp"
+        android:layout_weight="0.6"
+        android:background="@drawable/border"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/saveActivityButton"
-        android:text="SAVE"/>
+    <ListView
+        android:id="@+id/saveActivityListView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        >
+
+    </ListView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        android:layout_weight="0.13">
+
+        <Button
+            android:id="@+id/deleteActivityutton"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:text="delete"
+            android:background="@color/btn_logut_bg"
+            style="@android:style/ButtonBar"
+            android:layout_weight="1"
+            android:textSize="13sp" />
+
+        <Button
+            android:id="@+id/saveActivityButton"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@color/btn_start_activity_bg"
+            style="@android:style/ButtonBar"
+            android:layout_weight="1"
+            android:text="save"
+            android:textSize="13sp" />
+    </LinearLayout>
 
 </LinearLayout>

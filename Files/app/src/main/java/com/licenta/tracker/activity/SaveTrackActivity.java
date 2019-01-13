@@ -5,7 +5,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.android.volley.AuthFailureError;
@@ -27,8 +30,8 @@ public class SaveTrackActivity extends AppCompatActivity {
     private static final String TAG = SaveTrackActivity.class.getSimpleName();
 
     private JSONObject jsonGpsDataReceived;
-    private TextView txtJSONExample;
     private Button btnSaveActivity;
+    private ListView listViewActivityInfo;
     private ProgressDialog pDialog;
 
 
@@ -41,15 +44,16 @@ public class SaveTrackActivity extends AppCompatActivity {
         pDialog = new ProgressDialog(this);
         pDialog.setCancelable(false);
 
-        txtJSONExample = (TextView) findViewById(R.id.jsonexampletxtview);
-
         btnSaveActivity = (Button) findViewById(R.id.saveActivityButton);
+        listViewActivityInfo = (ListView) findViewById(R.id.saveActivityListView);
+
         try {
             jsonGpsDataReceived = new JSONObject(getIntent().getStringExtra("JSONObjectWithGPSData"));
-            txtJSONExample.setText(jsonGpsDataReceived.toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        displayInfoActivity();
 
         btnSaveActivity.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,6 +62,24 @@ public class SaveTrackActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+
+    private void displayInfoActivity(){
+
+
+        String[] itemsToDisplay = new String[3];
+        try {
+            itemsToDisplay = new String[]{jsonGpsDataReceived.getString("activity_name"),
+                    jsonGpsDataReceived.getString("total_time"),
+                    jsonGpsDataReceived.getString("total_distance"),
+                    jsonGpsDataReceived.getString("avg_time")};
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        ListAdapter listViewItems = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,itemsToDisplay);
+        listViewActivityInfo.setAdapter(listViewItems);
     }
 
     private void postJSONRequest(JSONObject mJsonObject){
