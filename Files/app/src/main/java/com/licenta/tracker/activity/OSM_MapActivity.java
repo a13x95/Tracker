@@ -45,8 +45,6 @@ public class OSM_MapActivity extends AppCompatActivity {
     private IMapController mapController;
     private MyLocationNewOverlay locationOverlay;
     private GeoPoint geoPoint;
-    private GeoPoint startPoint;
-    private GeoPoint endPoint;
     private TextView gpsLatitude;
     private TextView gpsLongitude;
     private TextView txtElapsedTime;
@@ -125,9 +123,7 @@ public class OSM_MapActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        geoPoint = new GeoPoint(0.0, 0.0);
-        startPoint = new GeoPoint(0.0, 0.0);
-        endPoint = new GeoPoint(0.0, 0.0);
+        geoPoint = new GeoPoint(0.0,0.0,0.0);
 
         //Context context = getApplicationContext();//load/initialize the osmdroid configuration,
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));//used for tiles
@@ -157,7 +153,7 @@ public class OSM_MapActivity extends AppCompatActivity {
                 try {
                     jsonObject.put("total_distance", String.valueOf(mLocationServiceHandler.getDistanceContor()) + " m");
                     jsonObject.put("total_time", getFormatInMilliseconds(timeInMilliseconds));
-                    jsonObject.put("avg_time", getAverageTime(Integer.parseInt(String.valueOf(mLocationServiceHandler.getDistanceContor()).split("\\.")[0]), getSeconds(getFormatInMilliseconds(timeInMilliseconds))));
+                    jsonObject.put("avg_time", getAveragePeace(Integer.parseInt(String.valueOf(mLocationServiceHandler.getDistanceContor()).split("\\.")[0]), getSeconds(getFormatInMilliseconds(timeInMilliseconds))));
                     //jsonObject.put("avg_time", getAverageTime(4500,getSeconds("00:24:30"))); //example to check functions
                     jsonObject.put("gps_data", jsonArray);
                     Log.d("JSON", jsonObject.toString());
@@ -182,22 +178,31 @@ public class OSM_MapActivity extends AppCompatActivity {
         handler.post(new Runnable() {
             @Override
             public void run() {
+
                 if(mLocationServiceHandler !=null){
                     geoPoint = mLocationServiceHandler.getLocation();
                     if(geoPoint.getLatitude() != 0.0 && geoPoint.getLongitude() != 0.0){
-                        if(startPoint.getLatitude() == 0.0 && startPoint.getLongitude() == 0.0){
-                            startPoint = geoPoint;
+                        if(geoPointsList.size() == 0) {//add first element to list
+                            geoPointsList.add(geoPoint);
+                            setCurrentSpeed(mLocationServiceHandler.getSpeed());
+                            txtGPSCurrentDistance.setText(String.valueOf(mLocationServiceHandler.getDistanceContor()) + " m");
+                            mapController.setCenter(geoPoint);
+                            gpsLatitude.setText(String.valueOf(geoPoint.getLatitude()));
+                            gpsLongitude.setText(String.valueOf(geoPoint.getLongitude()));
+                            createJSON(geoPoint.getLatitude(), geoPoint.getLongitude(), geoPoint.getAltitude(), getCurrentSpeed(),getTimestamp("dd-MM-yyyy hh-mm-ss"));
+                            //showLiveTrack(geoPointsList);
+                        }else if(geoPointsList.size() > 0 && !(geoPointsList.get(geoPointsList.size()-1).equals(geoPoint))){//add geoPoint to list only if the current one is different than previous
+                                geoPointsList.add(geoPoint);
+                                setCurrentSpeed(mLocationServiceHandler.getSpeed());
+                                txtGPSCurrentDistance.setText(String.valueOf(mLocationServiceHandler.getDistanceContor()) + " m");
+                                mapController.setCenter(geoPoint);
+                                gpsLatitude.setText(String.valueOf(geoPoint.getLatitude()));
+                                gpsLongitude.setText(String.valueOf(geoPoint.getLongitude()));
+                                createJSON(geoPoint.getLatitude(), geoPoint.getLongitude(), geoPoint.getAltitude(), getCurrentSpeed(),getTimestamp("dd-MM-yyyy hh-mm-ss"));
+                                //showLiveTrack(geoPointsList);
                         }
-                        geoPointsList.add(geoPoint);
-                        setCurrentSpeed(mLocationServiceHandler.getSpeed());
                     }
                 }
-                txtGPSCurrentDistance.setText(String.valueOf(mLocationServiceHandler.getDistanceContor()) + " m");
-                mapController.setCenter(geoPoint);
-                gpsLatitude.setText(String.valueOf(geoPoint.getLatitude()));
-                gpsLongitude.setText(String.valueOf(geoPoint.getLongitude()));
-                createJSON(geoPoint.getLatitude(), geoPoint.getLongitude(), geoPoint.getAltitude(), getCurrentSpeed(),getTimestamp("dd-MM-yyyy hh-mm-ss"));
-                //showLiveTrack(geoPointsList);
                 handler.postDelayed(this, 1000);
             }
         });
@@ -288,7 +293,7 @@ public class OSM_MapActivity extends AppCompatActivity {
         this.currentSpeed = currentSpeed;
     }
 
-    private String getAverageTime(int distanceInMeters, int timeInSeconds){
+    private String getAveragePeace(int distanceInMeters, int timeInSeconds){
         if(distanceInMeters>0){
             double division = ((double)timeInSeconds)/distanceInMeters;
             String minutes = String.valueOf(((double)Integer.parseInt(String.valueOf(division).split("\\.")[1].substring(0,3)))/60).split("\\.")[0];
@@ -296,7 +301,7 @@ public class OSM_MapActivity extends AppCompatActivity {
 
             return minutes + ":" + seconds + " Min/km";
         }
-        else return getFormatInMilliseconds(timeInMilliseconds) + " Min/km";
+        else return (getFormatInMilliseconds(timeInMilliseconds) + " Min/km");
     }
 
     private int getSeconds(String timer){
@@ -304,5 +309,4 @@ public class OSM_MapActivity extends AppCompatActivity {
         int seconds = Integer.parseInt(timer.split(":")[2]);
         return (minutes*60)+seconds;
     }
-
 }

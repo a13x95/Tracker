@@ -1,6 +1,7 @@
 package com.licenta.tracker.activity;
 
 import android.app.ProgressDialog;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,7 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
+
 import android.widget.Toast;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request.Method;
@@ -19,9 +20,20 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.licenta.tracker.R;
 import com.licenta.tracker.app.AppConfig;
 import com.licenta.tracker.app.AppController;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.osmdroid.api.IMapController;
+import org.osmdroid.config.Configuration;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Polyline;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -33,7 +45,8 @@ public class SaveTrackActivity extends AppCompatActivity {
     private Button btnSaveActivity;
     private ListView listViewActivityInfo;
     private ProgressDialog pDialog;
-
+    private MapView saveActivityMapView = null;
+    private IMapController mapController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,12 +59,15 @@ public class SaveTrackActivity extends AppCompatActivity {
 
         btnSaveActivity = (Button) findViewById(R.id.saveActivityButton);
         listViewActivityInfo = (ListView) findViewById(R.id.saveActivityListView);
+        saveActivityMapView = (MapView) findViewById(R.id.saveActivityMap);
 
         try {
             jsonGpsDataReceived = new JSONObject(getIntent().getStringExtra("JSONObjectWithGPSData"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        drawGPSTrack(jsonGpsDataReceived);
 
         displayInfoActivity();
 
@@ -64,9 +80,48 @@ public class SaveTrackActivity extends AppCompatActivity {
 
     }
 
+    private void drawGPSTrack(JSONObject jsonObject){
+        List<GeoPoint> geoPointsList = getListGeopoints(jsonObject);
+        Polyline polyline = new Polyline();
+        Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));//used for tiles
+        saveActivityMapView.setTileSource(TileSourceFactory.MAPNIK);
+        saveActivityMapView.setBuiltInZoomControls(true);
+        saveActivityMapView.setMultiTouchControls(true);
+        mapController = saveActivityMapView.getController();
+        mapController.setZoom(15);
+        mapController.setCenter(geoPointsList.get(0));
+        polyline.setPoints(geoPointsList);
+        polyline.setWidth(3f);
+        polyline.setOnClickListener(new Polyline.OnClickListener() {
+            @Override
+            public boolean onClick(Polyline polyline, MapView mapView, GeoPoint eventPos) {
+                Toast.makeText(mapView.getContext(), "polyline with" +  + polyline.getPoints().size() + " pts was tapped", Toast.LENGTH_LONG).show();
+                return false;
+            }
+        });
+        saveActivityMapView.getOverlayManager().add(polyline);
+    }
+
+    private List<GeoPoint> getListGeopoints(JSONObject jsonObject){//using gps data from json object
+        List<GeoPoint> geoPointsList = new ArrayList<>();
+        //Parse jsonArray
+        try {
+            JSONArray jsonArray = jsonObject.getJSONArray("gps_data");
+            for(int i=0; i<jsonArray.length(); i++){
+                GeoPoint geoPoint = new GeoPoint(0.0,0.0,0.0);
+                JSONObject GPSData = jsonArray.getJSONObject(i);
+                geoPoint.setLatitude(GPSData.getDouble("latitude"));
+                geoPoint.setLongitude(GPSData.getDouble("longitude"));
+                geoPoint.setAltitude(GPSData.getDouble("altitude"));
+                geoPointsList.add(geoPoint);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return geoPointsList;
+    }
 
     private void displayInfoActivity(){
-
 
         String[] itemsToDisplay = new String[3];
         try {
@@ -114,6 +169,18 @@ public class SaveTrackActivity extends AppCompatActivity {
 
         //Adding request to the request queue
         AppController.getInstance().addToRequestQueue(jsonObjectRequest,tag_string_req);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        saveActivityMapView.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        saveActivityMapView.onPause();
     }
 
     private void showDialog() {
