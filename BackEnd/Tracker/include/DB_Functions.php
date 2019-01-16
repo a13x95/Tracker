@@ -45,6 +45,46 @@ class DB_Functions {
             return false;
         }
     }
+
+    public function storeActivity($track_id, $user_id, $latitude, $longitude, $altitude, $speed, $timestamp){
+        $stmt = $this->conn->prepare("INSERT INTO tracking_activities(track_id, user_id, latitude, longitude, altitude, current_speed, time_stamp) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("ssssiis", $track_id, $user_id, $latitude, $longitude, $altitude, $speed, $timestamp);
+        $result = $stmt->execute();
+        $stmt->close();
+
+        //Check if activity were successfully stored
+        if($result){
+            $stmt = $this->conn->prepare("SELECT * FROM tracking_activities WHERE track_id = ? AND user_id = ?");
+            $stmt->bind_param("ss", $track_id, $user_id);
+            $stmt->execute();
+            $fetched_activity = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+
+            return $fetched_activity; 
+        } else{
+            return false;
+        }
+    }
+
+    public function storeActivityDetails($user_id, $track_id, $activity_name, $total_time, $total_distance, $avg_time){
+        $stmt = $this->conn->prepare("INSERT INTO activities_details (user_id, track_id, activity_name, total_time, total_distance, avg_time) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("ssssss", $user_id, $track_id, $activity_name, $total_time, $total_distance, $avg_time);
+        $result = $stmt->execute();
+        $stmt->close();
+
+        //Check if activity details were successfully stored
+        if($result){
+            $stmt = $this->conn->prepare("SELECT * FROM activities_details WHERE track_id = ? AND user_id = ?");
+            $stmt->bind_param("ss", $track_id, $user_id);
+            $stmt->execute();
+            $activity_details = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+
+            return $activity_details; 
+        } else{
+            return false;
+        }
+    }
  
     /**
      * Get user by email and password

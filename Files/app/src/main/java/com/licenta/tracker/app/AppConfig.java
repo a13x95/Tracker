@@ -2,7 +2,7 @@ package com.licenta.tracker.app;
 
 public class AppConfig {
 
-    public static String NGROK_ADDRESS = "https://526ac260.ngrok.io";
+    public static String NGROK_ADDRESS = "http://81b46b28.ngrok.io";
     // Server user login url
     public static String URL_LOGIN = NGROK_ADDRESS + "/Tracker/login.php";
 
