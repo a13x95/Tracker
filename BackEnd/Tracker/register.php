@@ -1,46 +1,68 @@
-<?php
- 
-require_once 'include/DB_Functions.php';
-$db = new DB_Functions();
- 
-// json response array
-$response = array("error" => FALSE);
- 
-if (isset($_POST['name']) && isset($_POST['email']) && isset($_POST['password'])) {
- 
-    // receiving the post params
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $password = $_POST['password'];
- 
-    // check if user is already existed with the same email
-    if ($db->isUserExisted($email)) {
-        // user already existed
-        $response["error"] = TRUE;
-        $response["error_msg"] = "User already existed with " . $email;
-        echo json_encode($response);
-    } else {
-        // create a new user
-        $user = $db->storeUser($name, $email, $password);
-        if ($user) {
-            // user stored successfully
-            $response["error"] = FALSE;
-            $response["uid"] = $user["unique_id"];
-            $response["user"]["name"] = $user["name"];
-            $response["user"]["email"] = $user["email"];
-            $response["user"]["created_at"] = $user["created_at"];
-            $response["user"]["updated_at"] = $user["updated_at"];
-            echo json_encode($response);
-        } else {
-            // user failed to store
-            $response["error"] = TRUE;
-            $response["error_msg"] = "Unknown error occurred in registration!";
-            echo json_encode($response);
-        }
-    }
-} else {
-    $response["error"] = TRUE;
-    $response["error_msg"] = "Required parameters (name, email or password) are missing!";
-    echo json_encode($response);
-}
-?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Register</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="fontawesome563/css/all.css">
+  <link rel="stylesheet" href="bootstrap421/css/bootstrap.min.css">
+  <link rel="stylesheet" href="bootstrap421/css/bootstrap.min.js">
+  <link rel="stylesheet" href="css/register.css">
+
+  <script src="bootstrap421/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="signup-form">
+  <form action="register_user.php" method="post">
+    <h2 class="text-center">Sign Up</h2>
+    <p>Please fill in this form to create an account!</p>
+    <hr>
+    <div class="form-group row">
+      <div class="col-sm-1">
+        <i class="fas fa-user" style="padding-top: 12px"></i>
+      </div>
+      <div class="col-sm-11">
+        <input type="text" class="form-control" name="name" placeholder="Full Name" required="required">
+      </div>
+    </div>
+    <div class="form-group row">
+      <div class="col-sm-1">
+        <i class="fas fa-at" style="padding-top: 12px"></i>
+      </div>
+      <div class="col-sm-11">
+        <input type="email" class="form-control" name="email" placeholder="Email" required="required">
+      </div>
+    </div>
+    <div class="form-group row">
+      <div class="col-sm-1">
+        <i class="fas fa-key" style="padding-top: 12px"></i>
+      </div>
+      <div class="col-sm-11">
+        <input type="password" class="form-control" name="password" placeholder="Password" required="required">
+      </div>
+    </div>
+    <!--
+    <div class="form-group row">
+      <div class="col-sm-1">
+        <i class="fas fa-key" style="padding-top: 12px"></i>
+      </div>
+      <div class="col-sm-11">
+        <input type="password" class="form-control" name="confirm_password" placeholder="Confirm Password" required="required">
+      </div>
+    </div>
+    -->
+    <div class="form-group row">
+      <div class="col-sm-6">
+        <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-plus" style="padding-right: 5px"></i> Sign Up</button>
+      </div>
+      <div class="col-sm-6">
+        <button type="reset" class="btn btn-primary btn-lg">Reset <i class="fas fa-user-times" style="padding-left: 5px"></i> </button>
+      </div>
+    </div>
+  </form>
+  <div class="hint-text">Already have an account? <a href="login.php">Login here</a></div>
+</div>
+</body>
+</html>

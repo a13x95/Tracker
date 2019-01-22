@@ -1,5 +1,6 @@
 <?php
-require_once 'include/DB_Functions.php';
+$root = realpath($_SERVER["DOCUMENT_ROOT"]);
+require_once $root.'/Tracker/include/DB_Functions.php';
 $db = new DB_Functions();
 
  // json response array
