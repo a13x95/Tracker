@@ -16,8 +16,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         if ($db->isUserExisted($email)) {
             // user already existed
             $response["error"] = TRUE;
-            $response["error_msg"] = "User already existed with " . $email;
-            echo json_encode($response);
+            $response["error_msg"] = "User already exists with email address " . $email;
+            header("location: register.php?registerStatus=".$response["error_msg"]);
         } else {
             // create a new user
             $user = $db->storeUser($name, $email, $password);
@@ -29,22 +29,22 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 $response["user"]["email"] = $user["email"];
                 $response["user"]["created_at"] = $user["created_at"];
                 $response["user"]["updated_at"] = $user["updated_at"];
-                echo json_encode($response);
+                header("location: login.php");
             } else {
                 // user failed to store
                 $response["error"] = TRUE;
                 $response["error_msg"] = "Unknown error occurred in registration!";
-                echo json_encode($response);
+                header("location: register.php?registerStatus=".$response["error_msg"]);
             }
         }
     } else {
         $response["error"] = TRUE;
         $response["error_msg"] = "Required parameters (name, email or password) are missing!";
-        echo json_encode($response);
+        header("location: register.php?registerStatus=".$response["error_msg"]);
     }
 } else{
     $response["error"] = TRUE;
     $response["error_msg"] = "Request method not POST!";
-    echo json_encode($response);
+    header("location: register.php?registerStatus=".$response["error_msg"]);
 }
 ?>

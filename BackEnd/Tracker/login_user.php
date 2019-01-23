@@ -36,17 +36,16 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             $response["error"] = TRUE;
             $response["error_msg"] = "Login credentials are wrong. Please try again!";
             header("location: login.php?loginStatus=".$response["error_msg"]);
-            //echo json_encode($response);
         }
     } else {
         // required post params is missing
         $response["error"] = TRUE;
         $response["error_msg"] = "Required parameters email or password is missing!";
-        echo json_encode($response);
+        header("location: login.php?loginStatus=".$response["error_msg"]);
     }
 } else{
     $response["error"] = TRUE;
     $response["error_msg"] = "Request method not POST!";
-    echo json_encode($response);
+    header("location: login.php?loginStatus=".$response["error_msg"]);
 }
 ?>

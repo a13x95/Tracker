@@ -1,6 +1,6 @@
 body{
     color: #fff;
-    background: #3598dc;
+    background: #404550;
     font-family: sans-serif;
     }
     .form-control{
@@ -46,12 +46,12 @@ body{
     .login-form .btn{
         font-size: 16px;
         font-weight: bold;
-        background: #3598dc;
+        background: #404550;
         border: none;
         min-width: 160px;
     }
     .login-form .btn:hover, .login-form .btn:focus{
-        background: #2389cd !important;
+        background: #d9534f !important;
         outline: none;
     }
     .login-form a{
@@ -62,7 +62,7 @@ body{
         text-decoration: none;
     }
     .login-form form a{
-        color: #3598dc;
+        color: rgba(220, 18, 24, 0.68);
         text-decoration: none;
     }
     .login-form form a:hover{
