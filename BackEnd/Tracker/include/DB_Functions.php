@@ -77,13 +77,27 @@ class DB_Functions {
             $stmt = $this->conn->prepare("SELECT * FROM activities_details WHERE track_id = ? AND user_id = ?");
             $stmt->bind_param("ss", $track_id, $user_id);
             $stmt->execute();
-            $activity_details = $stmt->get_result()->fetch_assoc();
+            $activity_details = $stmt->get_result();
             $stmt->close();
 
             return $activity_details; 
         } else{
             return false;
         }
+    }
+
+    public function getActivityDetails($user_id){
+        $activity_details = array();
+        $index = 0;
+        $stmt = $this->conn->prepare("SELECT id, activity_name, total_time, avg_time, total_distance FROM activities_details WHERE user_id = ?");
+        $stmt->bind_param("s", $user_id);
+        $stmt->execute();
+        $aux= $stmt->get_result();
+        while ($row = $aux->fetch_assoc()){
+            $activity_details[$index++] = $row;
+        }
+        $stmt->close();
+        return $activity_details;
     }
  
     /**

@@ -28,6 +28,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             session_start();
             $_SESSION["loggedin"] = true;
             $_SESSION["email"] = $email;
+            $_SESSION["user_id"] = $user["unique_id"];
 
             //Login success - redirect user
             header("location: index.php");

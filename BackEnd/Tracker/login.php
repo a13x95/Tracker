@@ -3,7 +3,7 @@
 session_start();
 
 //If user is already logged in -> redirect to homepage
-if(isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true){
+if(isset($_SESSION["loggedin"]) && isset($_SESSION["user_id"]) && $_SESSION["loggedin"] === true){
 header("location: index.php");
 exit();
 }

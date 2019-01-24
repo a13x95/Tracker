@@ -3,9 +3,17 @@
 session_start();
 
 //If user is not logged in redirect to login page - else - display contents
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
+if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_SESSION["user_id"])){
     header("location: login.php");
     exit;
+} else {
+    require_once  'include/DB_Functions.php';
+    $db = new DB_Functions();
+
+    //Retrieve data from DB about activities details that will be put inside the table.
+    $activitiy_details = $db->getActivityDetails($_SESSION["user_id"]);
+    $total_activities = sizeof($activitiy_details);
+    //print_r($activitiy_details);
 }
 ?>
 
@@ -37,7 +45,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav ml-auto">
             <li class="nav-item active">
-                <a class="nav-link" href="index.php"> Activities  <span class="badge bg-danger align-text-top">33</span></a>
+                <a class="nav-link" href="index.php"> Activities  <span class="badge bg-danger align-text-top"><?php echo $total_activities;?></span></a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#"> <i class="far fa-envelope"></i> Contact </a>
@@ -46,6 +54,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                 <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fas fa-user"></i> Profile </a>
                 <div class="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="navbarDropdownMenuLink">
                     <a class="dropdown-item" href="#">Settings</a>
+                    <a class="dropdown-item" href="#">Import Activity</a>
                     <a class="dropdown-item" href="logout.php">Log out</a>
                 </div>
             </li>
@@ -60,6 +69,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 
         </div>
         <div class="col-sm-10 text-left">
+            <?php  if($activitiy_details){ ?>
             <div class="table-responsive-sm">
                 <table class="table table-hover table-dark">
                     <thead>
@@ -73,17 +83,23 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>data</td>
-                        <td>data</td>
-                        <td>data</td>
-                        <td>data</td>
-                        <td><a href="#" class="btn btn-sm btn-danger" role="button">Details</a></td>
-                    </tr>
+                    <?php
+                        $id=1;
+                        foreach ($activitiy_details as $row){
+                            $activity_name = $row["activity_name"];
+                            $total_time = $row["total_time"];
+                            $avg_time = $row["avg_time"];
+                            $total_distance = $row["total_distance"];
+                            echo "<tr><th scope=\"row\">".$id++."</th>"."<td>".$activity_name."</td>"."<td>".$total_time."</td>"."<td>".$avg_time."</td>"."<td>".$total_distance."</td>";
+                            echo "<td><a href=\"activity_details.php\" class=\"btn btn-sm btn-danger\" role=\"button\">Details</a></td>"."</tr>";
+                        }
+                    ?>
                     </tbody>
                 </table>
             </div>
+
+            <?php } else {echo "User didn't tracked any activities";}?>
+
         </div>
         <div class="col-sm-1 sidenav">
 
