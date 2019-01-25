@@ -1,7 +1,42 @@
+.navbar {
+    margin:0 !important;
+}
+body {
+    background-color: darkgray;
+    color: #000;
+}
+
+.jumbotron {
+    background-color: darkgray;
+    color: #000;
+    border-radius: 0px;
+}
+.jumbotron-sm {
+    margin: 0;
+    padding-top: 30px;
+    padding-bottom: 30px; }
+.jumbotron small {
+    margin: 0;
+    color: #000;
+}
+.h1 small {
+    font-size: 24px;
+}
 .footer {
     position: absolute;
     bottom: 0;
     width: 100%;
     background-color: #404550;
     color: #ffffff;
+}
+
+.card {
+    margin-top: 30px;
+    max-width: 500px;
+    text-align: center;
+}
+
+.email {
+    color: grey;
+    font-size: 18px;
 }

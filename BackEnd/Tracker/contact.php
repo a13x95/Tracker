@@ -13,14 +13,14 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
     //Retrieve data from DB about activities details that will be put inside the table.
     $activitiy_details = $db->getActivityDetails($_SESSION["user_id"]);
     $total_activities = sizeof($activitiy_details);
-    //print_r($activitiy_details);
+
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Home</title>
+    <title>Contact</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -34,7 +34,6 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
 
 </head>
 <body id="grad">
-
 <!--Navbar -->
 <nav class="mb-1 navbar navbar-expand-lg  navbar-dark bg-dark">
     <a class="navbar-brand" href="index.php">Tracker</a>
@@ -43,10 +42,10 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav ml-auto">
-            <li class="nav-item active">
+            <li class="nav-item">
                 <a class="nav-link" href="index.php"> Activities  <span class="badge bg-danger align-text-top"><?php echo $total_activities;?></span></a>
             </li>
-            <li class="nav-item ">
+            <li class="nav-item active">
                 <a class="nav-link" href="contact.php"> <i class="far fa-envelope"></i> Contact </a>
             </li>
             <li class="nav-item dropdown">
@@ -62,57 +61,51 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
 </nav>
 <!--Navbar -->
 
-<div class="container-fluid text-center">
-    <div class="row content">
-        <div class="col-sm-1 sidenav">
-
-        </div>
-        <div class="col-sm-10 text-left">
-            <?php  if($activitiy_details){ ?>
-            <div class="table-responsive-sm">
-                <table class="table table-hover table-dark">
-                    <thead>
-                    <tr>
-                        <th scope="col"></th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Duration</th>
-                        <th scope="col">Avg Peace</th>
-                        <th scope="col">KM</th>
-                        <th scope="col"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php
-                        $id=1;
-                        foreach ($activitiy_details as $row){
-                            $activity_name = $row["activity_name"];
-                            $total_time = $row["total_time"];
-                            $avg_time = $row["avg_time"];
-                            $total_distance = $row["total_distance"];
-                            echo "<tr><th scope=\"row\">".$id++."</th>"."<td>".$activity_name."</td>"."<td>".$total_time."</td>"."<td>".$avg_time."</td>"."<td>".$total_distance."</td>";
-                            echo "<td><a href=\"activity_details.php\" class=\"btn btn-sm btn-danger\" role=\"button\">Details</a></td>"."</tr>";
-                        }
-                    ?>
-                    </tbody>
-                </table>
+<div class="login-form">
+    <form action="login_user.php" method="post">
+        <h2 class="text-center">Log In </h2>
+        <hr>
+        <div class="form-group row">
+            <div class="col-sm-1">
+                <i class="fas fa-user" style="padding-top: 12px"></i>
             </div>
-
-            <?php } else {echo "User didn't tracked any activities";}?>
-
+            <div class="col-sm-11">
+                <input type="email" class="form-control" name="email" placeholder="Enter Email Address" required="required">
+            </div>
         </div>
-        <div class="col-sm-1 sidenav">
 
+        <div class="form-group row">
+            <div class="col-sm-1">
+                <i class="fas fa-key" style="padding-top: 12px"></i>
+            </div>
+            <div class="col-sm-11">
+                <input type="password" class="form-control" name="password" placeholder="Enter Password" required="required">
+            </div>
         </div>
-    </div>
+
+        <div class="form-group row">
+            <div class="col-sm-12">
+                <button type="submit" class="btn btn-primary btn-block">Log In <i class="fas fa-user-check" style="padding-left: 5px"></i></button>
+            </div>
+        </div>
+        <div class="row col-sm-12">
+            <p class="text-center" style="color: rgba(220,18,24,0.68)">
+                <?php if (isset($_GET['loginStatus'])){ $message = $_GET['loginStatus']; echo $message;} ?>
+            </p>
+        </div>
+        <div class="clearfix">
+            <label class="pull-left checkbox-inline"><input type="checkbox"> Remember me</label>
+            <a href="#" class="pull-right">Forgot Password?</a>
+        </div>
+    </form>
+    <p class="text-center"><a href="register.php">Create an Account</a></p>
 </div>
 
-
+</body>
 <!-- Footer -->
 <footer class="footer container-fluid bg-4 text-center">
     <div class="text-center py-3">© 2019 Copyright:
         <a href="index.php"> Tracker </a>
     </div>
 </footer>
-
-</body>
 </html>

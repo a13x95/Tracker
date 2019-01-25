@@ -1,7 +1,7 @@
 <?php
 require_once 'include/DB_Functions.php';
 $db = new DB_Functions();
- 
+
 // json response array
 $response = array("error" => FALSE);
 
@@ -28,6 +28,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             session_start();
             $_SESSION["loggedin"] = true;
             $_SESSION["email"] = $email;
+            $_SESSION["name"] = $user["name"];
             $_SESSION["user_id"] = $user["unique_id"];
 
             //Login success - redirect user
