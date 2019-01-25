@@ -77,7 +77,7 @@ class DB_Functions {
             $stmt = $this->conn->prepare("SELECT * FROM activities_details WHERE track_id = ? AND user_id = ?");
             $stmt->bind_param("ss", $track_id, $user_id);
             $stmt->execute();
-            $activity_details = $stmt->get_result();
+            $activity_details = $stmt->get_result()->fetch_assoc();
             $stmt->close();
 
             return $activity_details; 

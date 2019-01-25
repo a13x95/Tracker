@@ -61,44 +61,58 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
 </nav>
 <!--Navbar -->
 
-<div class="login-form">
-    <form action="login_user.php" method="post">
-        <h2 class="text-center">Log In </h2>
-        <hr>
-        <div class="form-group row">
-            <div class="col-sm-1">
-                <i class="fas fa-user" style="padding-top: 12px"></i>
-            </div>
-            <div class="col-sm-11">
-                <input type="email" class="form-control" name="email" placeholder="Enter Email Address" required="required">
-            </div>
-        </div>
 
-        <div class="form-group row">
-            <div class="col-sm-1">
-                <i class="fas fa-key" style="padding-top: 12px"></i>
-            </div>
-            <div class="col-sm-11">
-                <input type="password" class="form-control" name="password" placeholder="Enter Password" required="required">
+<div class="jumbotron jumbotron-sm" id="grad">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 col-lg-12">
+                <h1 class="h1">
+                    Contact us <small>Feel free to get in touch</small></h1>
             </div>
         </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="well well-sm">
+                <form>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input type="text" class="form-control" name="name" placeholder="Enter Name" required="required">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" class="form-control" name="email" placeholder="Enter Email" required="required">
+                            </div>
+                            <div class="form-group">
+                                <label for="subject">Subject</label>
+                                <select id="subject" name="subject" class="form-control" required="required">
+                                    <option value="tbd" selected=""> Choose</option>
+                                    <option value="bug"> Bug</option>
+                                    <option value="other"> Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="message">Message</label>
+                                <textarea id="message" class="form-control" name="message"  rows="9" cols="25" placeholder="Message" required="required"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-danger" id="btnContactUs">Send Message</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-4">
 
-        <div class="form-group row">
-            <div class="col-sm-12">
-                <button type="submit" class="btn btn-primary btn-block">Log In <i class="fas fa-user-check" style="padding-left: 5px"></i></button>
-            </div>
         </div>
-        <div class="row col-sm-12">
-            <p class="text-center" style="color: rgba(220,18,24,0.68)">
-                <?php if (isset($_GET['loginStatus'])){ $message = $_GET['loginStatus']; echo $message;} ?>
-            </p>
-        </div>
-        <div class="clearfix">
-            <label class="pull-left checkbox-inline"><input type="checkbox"> Remember me</label>
-            <a href="#" class="pull-right">Forgot Password?</a>
-        </div>
-    </form>
-    <p class="text-center"><a href="register.php">Create an Account</a></p>
+    </div>
 </div>
 
 </body>
