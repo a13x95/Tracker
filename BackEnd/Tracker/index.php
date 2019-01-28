@@ -85,12 +85,13 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
                     <?php
                         $id=1;
                         foreach ($activitiy_details as $row){
+                            $activity_track_id = $row["track_id"];
                             $activity_name = $row["activity_name"];
                             $total_time = $row["total_time"];
                             $avg_time = $row["avg_time"];
                             $total_distance = $row["total_distance"];
-                            echo "<tr><th scope=\"row\">".$id++."</th>"."<td>".$activity_name."</td>"."<td>".$total_time."</td>"."<td>".$avg_time."</td>"."<td>".$total_distance."</td>";
-                            echo "<td><a href=\"activity_details.php\" class=\"btn btn-sm btn-danger\" role=\"button\">Details</a></td>"."</tr>";
+                            echo "<tr><td scope=\"row\">".$id++."</td>"."<td>".$activity_name."</td>"."<td>".$total_time."</td>"."<td>".$avg_time."</td>"."<td>".$total_distance."</td>";
+                            echo "<td><form action='activity_details.php' method='post'> <button class='btn btn-sm btn-danger' type='submit' name='activity_track_id' value=$activity_track_id>Details</button> </form></td>"."</tr>";
                         }
                     ?>
                     </tbody>

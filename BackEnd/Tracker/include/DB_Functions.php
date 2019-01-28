@@ -89,7 +89,7 @@ class DB_Functions {
     public function getActivityDetails($user_id){
         $activity_details = array();
         $index = 0;
-        $stmt = $this->conn->prepare("SELECT id, activity_name, total_time, avg_time, total_distance FROM activities_details WHERE user_id = ?");
+        $stmt = $this->conn->prepare("SELECT track_id, id, activity_name, total_time, avg_time, total_distance FROM activities_details WHERE user_id = ?");
         $stmt->bind_param("s", $user_id);
         $stmt->execute();
         $aux= $stmt->get_result();
@@ -98,6 +98,20 @@ class DB_Functions {
         }
         $stmt->close();
         return $activity_details;
+    }
+
+    public function  getActivityGPSCoordinates($track_id){
+        $activity_gps_coordinates = array();
+        $index = 0;
+        $stmt = $this->conn->prepare("SELECT latitude, longitude FROM tracking_activities WHERE track_id = ?");
+        $stmt->bind_param("s", $track_id);
+        $stmt->execute();
+        $aux = $stmt->get_result();
+        while($row = $aux->fetch_assoc()){
+            $activity_gps_coordinates[$index++] = $row;
+        }
+        $stmt->close();
+        return $activity_gps_coordinates;
     }
  
     /**
