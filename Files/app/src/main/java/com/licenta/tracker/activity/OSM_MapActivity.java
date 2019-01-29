@@ -6,14 +6,19 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.location.LocationManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.provider.Settings;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -33,6 +38,8 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
+
+import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -41,6 +48,7 @@ import java.util.TimeZone;
 
 
 public class OSM_MapActivity extends AppCompatActivity {
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
     private MapView map = null;
     private IMapController mapController;
     private MyLocationNewOverlay locationOverlay;
@@ -50,16 +58,19 @@ public class OSM_MapActivity extends AppCompatActivity {
     private TextView txtElapsedTime;
     private TextView txtGPSCurrentDistance;
     private Button btnStopActivity;
+    private Button btnCapturePhoto;
     private boolean bound = false;
     private List<GeoPoint> geoPointsList = new ArrayList<>();
     private Polyline polyline = new Polyline();
     private LocationManager locationManager = null;
     private SQLiteHandler db;
     private JSONArray jsonArray = new JSONArray();
+    private JSONArray imagesJsonArray = new JSONArray();
     private JSONObject jsonObject = new JSONObject();
     private Double currentSpeed = 0.0;
     private long startTime, timeInMilliseconds = 0;
     private Handler timerHandler = new Handler();
+    private int imageContor = 0;
 
     LocationServiceHandler mLocationServiceHandler = new LocationServiceHandler();
 
@@ -99,28 +110,6 @@ public class OSM_MapActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        if (bound){
-            unbindService(mServiceConnection);
-            bound = false;
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        map.onResume(); //needed for compass, my location overlays, v6.0.0 and up
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        //this will refresh the osmdroid configuration on pause.
-        map.onPause();
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         geoPoint = new GeoPoint(0.0,0.0,0.0);
@@ -133,6 +122,7 @@ public class OSM_MapActivity extends AppCompatActivity {
         txtGPSCurrentDistance = (TextView) findViewById(R.id.current_distance);
         txtElapsedTime = (TextView) findViewById(R.id.time_contor);
         btnStopActivity = (Button) findViewById(R.id.stop_activity);
+        btnCapturePhoto = (Button) findViewById(R.id.take_a_photo);
         map = (MapView) findViewById(R.id.map);
         locationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(this),map);
         map.setTileSource(TileSourceFactory.MAPNIK);
@@ -156,6 +146,7 @@ public class OSM_MapActivity extends AppCompatActivity {
                     jsonObject.put("avg_time", getAveragePeace(Integer.parseInt(String.valueOf(mLocationServiceHandler.getDistanceContor()).split("\\.")[0]), getSeconds(getFormatInMilliseconds(timeInMilliseconds))));
                     //jsonObject.put("avg_time", getAverageTime(4500,getSeconds("00:24:30"))); //example to check functions
                     jsonObject.put("gps_data", jsonArray);
+                    jsonObject.put("images", imagesJsonArray);
                     Log.d("JSON", jsonObject.toString());
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -167,6 +158,57 @@ public class OSM_MapActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        /*If phone has no camera disable button*/
+        if(hasCamera()){
+            btnCapturePhoto.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    capturePhoto();
+                }
+            });
+        } else {
+            btnCapturePhoto.setEnabled(false);
+        }
+
+    }
+
+    private boolean hasCamera(){
+        return getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY);
+    }
+
+    private void capturePhoto(){
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
+    };
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        // This method is called after the image was captured
+        if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK && data!=null){
+            //Get data from image + put encoded bitmap into JSON Array
+            Bundle extras = data.getExtras();
+            Bitmap bitmapImage = (Bitmap) extras.get("data");
+            String encodedImage = bitmapToString(bitmapImage);
+            String name = "image" + (imageContor++);
+            JSONObject arrayElement = new JSONObject();
+            try {
+                arrayElement.put(name, encodedImage);
+                imagesJsonArray.put(arrayElement);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private String bitmapToString(Bitmap bitmap){
+        final int COMPRESSION_QUALITY = 100;
+        String result;
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, COMPRESSION_QUALITY,byteArrayOutputStream);
+        byte[] b = byteArrayOutputStream.toByteArray();
+        result = Base64.encodeToString(b, Base64.DEFAULT);
+        return result;
     }
 
     private void showGPSCoordinates() {
@@ -309,4 +351,28 @@ public class OSM_MapActivity extends AppCompatActivity {
         int seconds = Integer.parseInt(timer.split(":")[2]);
         return (minutes*60)+seconds;
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (bound){
+            unbindService(mServiceConnection);
+            bound = false;
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        map.onResume(); //needed for compass, my location overlays, v6.0.0 and up
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //this will refresh the osmdroid configuration on pause.
+        map.onPause();
+    }
+
+
 }

@@ -1,13 +1,17 @@
 package com.licenta.tracker.activity;
 
 import android.app.ProgressDialog;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.GridView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
@@ -20,6 +24,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.licenta.tracker.R;
 import com.licenta.tracker.app.AppConfig;
 import com.licenta.tracker.app.AppController;
+import com.licenta.tracker.helper.ImageAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,6 +53,11 @@ public class SaveTrackActivity extends AppCompatActivity {
     private MapView saveActivityMapView = null;
     private IMapController mapController;
 
+    private GridView imageGrid;
+    private ArrayList<Bitmap> bitmapList;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +69,10 @@ public class SaveTrackActivity extends AppCompatActivity {
 
         btnSaveActivity = (Button) findViewById(R.id.saveActivityButton);
         listViewActivityInfo = (ListView) findViewById(R.id.saveActivityListView);
+
+        imageGrid = (GridView) findViewById(R.id.gridViewImage);
+        bitmapList = new ArrayList<Bitmap>();
+
         saveActivityMapView = (MapView) findViewById(R.id.saveActivityMap);
 
         try {
@@ -71,6 +85,9 @@ public class SaveTrackActivity extends AppCompatActivity {
 
         displayInfoActivity();
 
+        bitmapList = getBitmapList(jsonGpsDataReceived);
+        imageGrid.setAdapter( new ImageAdapter(this, bitmapList));
+
         btnSaveActivity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,6 +95,27 @@ public class SaveTrackActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private ArrayList<Bitmap> getBitmapList(JSONObject jsonObject){
+        ArrayList<Bitmap> result = new ArrayList<Bitmap>();
+        try {
+            JSONArray jsonArray = jsonObject.getJSONArray("images");
+            for(int i = 0;i<jsonArray.length();i++){
+                JSONObject jsonImageObj = jsonArray.getJSONObject(i);
+                String imageKey = "image"+i;
+                String jsonString = jsonImageObj.getString(imageKey);
+                result.add(getBitmapFromString(jsonString));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+    private Bitmap getBitmapFromString(String jsonString){
+        byte[] decodedString = Base64.decode(jsonString, Base64.DEFAULT);
+        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString,0,decodedString.length);
+        return decodedByte;
     }
 
     private void drawGPSTrack(JSONObject jsonObject){
