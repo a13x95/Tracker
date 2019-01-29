@@ -30,7 +30,7 @@ $decoded_json = json_decode($content, true);
 
 if(!is_array($decoded_json)){
 	$response["error"] = TRUE;
-	$response["error_msg"] = "Received content contained invalid JSON!";
+	$response["error_msg"] = "Received content with invalid JSON!";
 	echo json_encode($response);
 	exit();
 } else{
@@ -43,6 +43,9 @@ if(!is_array($decoded_json)){
 	$avg_time = $decoded_json['avg_time'];
 
 	$gps_data_array = $decoded_json['gps_data'];
+
+	$bitmap_jpg_array = $decoded_json['images'];
+
 	$result_insert_details = $db->storeActivityDetails($user_id, $track_id, $activity_name, $total_time, $total_distance, $avg_time);
 
 	if($result_insert_details){
@@ -60,12 +63,25 @@ if(!is_array($decoded_json)){
 				exit();
 			}
 		}
+		$counter = 0;
+		foreach ($bitmap_jpg_array as $key){
+		    $bitmapString = $key['image'.$counter];
+		    $latitude = $key['image'.$counter.'lat'];
+		    $longitude = $key['image'.$counter.'long'];
+		    $counter++;
+		    $result_insert_img = $db->storeImages($bitmapString, $track_id, $user_id, $latitude, $longitude);
+		    if(!$result_insert_img){
+		        $response["error"] = TRUE;
+		        $response["error_msg"] = $result_insert_img. " result_insert_img";
+		        echo json_encode($response);
+		        exit();
+            }
+        }
 	} else{
 		$response["error"] = TRUE;
 		$response["error_msg"] = $result_insert." result_insert_details ";
 		echo json_encode($response);
 	}
-	
 	echo json_encode($response);
 }
 ?>

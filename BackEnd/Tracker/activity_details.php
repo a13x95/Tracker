@@ -16,14 +16,33 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
 
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         if (isset($_POST['activity_track_id'])){
-            //Retrieve an array with all gps coordinates for a specific activity that was recorded
+            //Get max speed of a specific activity
+            $activity_max_speed = $db->getActivityMaxSpeed($_POST['activity_track_id']);
+            //Get an array with all gps coordinates for a specific activity that was recorded
             $activity_GPS_coordinates = $db->getActivityGPSCoordinates($_POST['activity_track_id']);
+            //Get an array with all base64 string images
+            $activity_images = $db->getActivityImages($_POST['activity_track_id']);
+
             foreach ($activitiy_details as $row){
                 if($row["track_id"] === $_POST['activity_track_id']){
                     $activity_name = $row["activity_name"];
+                    $total_time = $row["total_time"];
+                    $avg_peace = $row["avg_time"];
                 }
             }
-            //print_r($activity_GPS_coordinates);
+            if($activity_images){
+                $index = 0;
+                foreach ($activity_images as $key => $value){
+                    $data = base64_decode($value);
+                    if($data){
+                        file_put_contents('images/'.$_POST['activity_track_id'].$index++.'.png', $data);
+                    } else {
+                        echo 'An error occurred while creating image from decoded base64 string.';
+                        break;
+                    }
+                }
+            }
+            //print_r($activity_images["img1"]);
         }
     }
     else{
@@ -137,7 +156,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
                         <th scope="col">Total Time</th>
                     </tr>
                     </thead>
-                    <tr><td scope="row">time</td></tr>
+                    <tr><td scope="row"><?php echo $total_time; ?></td></tr>
                     <tbody>
                     </tbody>
                 </table>
@@ -152,7 +171,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
                         <th scope="col">Avg Peace</th>
                     </tr>
                     </thead>
-                    <tr><td scope="row">peace</td></tr>
+                    <tr><td scope="row"><?php echo $avg_peace." min/km"; ?></td></tr>
                     <tbody>
                     </tbody>
                 </table>
@@ -167,7 +186,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
                         <th scope="col">Max Speed</th>
                     </tr>
                     </thead>
-                    <tr><td scope="row">speed</td></tr>
+                    <tr><td scope="row"><?php echo $activity_max_speed." km/h"; ?></td></tr>
                     <tbody>
                     </tbody>
                 </table>

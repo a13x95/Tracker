@@ -40,6 +40,7 @@ import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -68,6 +69,8 @@ public class OSM_MapActivity extends AppCompatActivity {
     private JSONArray imagesJsonArray = new JSONArray();
     private JSONObject jsonObject = new JSONObject();
     private Double currentSpeed = 0.0;
+    private Double currentLatitude = 0.0;
+    private Double currentLongitude = 0.0;
     private long startTime, timeInMilliseconds = 0;
     private Handler timerHandler = new Handler();
     private int imageContor = 0;
@@ -141,7 +144,7 @@ public class OSM_MapActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //In this event we want  to open a new activity that will contain all the data that has been tracked
                 try {
-                    jsonObject.put("total_distance", String.valueOf(mLocationServiceHandler.getDistanceContor()) + " m");
+                    jsonObject.put("total_distance", String.valueOf(mLocationServiceHandler.getDistanceContor()));
                     jsonObject.put("total_time", getFormatInMilliseconds(timeInMilliseconds));
                     jsonObject.put("avg_time", getAveragePeace(Integer.parseInt(String.valueOf(mLocationServiceHandler.getDistanceContor()).split("\\.")[0]), getSeconds(getFormatInMilliseconds(timeInMilliseconds))));
                     //jsonObject.put("avg_time", getAverageTime(4500,getSeconds("00:24:30"))); //example to check functions
@@ -190,10 +193,15 @@ public class OSM_MapActivity extends AppCompatActivity {
             Bundle extras = data.getExtras();
             Bitmap bitmapImage = (Bitmap) extras.get("data");
             String encodedImage = bitmapToString(bitmapImage);
-            String name = "image" + (imageContor++);
+            String name = "image" + (imageContor);
+            String latitudeName = "image" + (imageContor) + "lat";
+            String longitudeName = "image" + (imageContor) + "long";
+            imageContor++;
             JSONObject arrayElement = new JSONObject();
             try {
                 arrayElement.put(name, encodedImage);
+                arrayElement.put(latitudeName, getCurrentLatitude());
+                arrayElement.put(longitudeName, getCurrentLongitude());
                 imagesJsonArray.put(arrayElement);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -202,10 +210,9 @@ public class OSM_MapActivity extends AppCompatActivity {
     }
 
     private String bitmapToString(Bitmap bitmap){
-        final int COMPRESSION_QUALITY = 100;
         String result;
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, COMPRESSION_QUALITY,byteArrayOutputStream);
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100,byteArrayOutputStream);
         byte[] b = byteArrayOutputStream.toByteArray();
         result = Base64.encodeToString(b, Base64.DEFAULT);
         return result;
@@ -227,6 +234,8 @@ public class OSM_MapActivity extends AppCompatActivity {
                         if(geoPointsList.size() == 0) {//add first element to list
                             geoPointsList.add(geoPoint);
                             setCurrentSpeed(mLocationServiceHandler.getSpeed());
+                            setCurrentLatitude(geoPoint.getLatitude());
+                            setCurrentLongitude(geoPoint.getLongitude());
                             txtGPSCurrentDistance.setText(String.valueOf(mLocationServiceHandler.getDistanceContor()) + " m");
                             mapController.setCenter(geoPoint);
                             gpsLatitude.setText(String.valueOf(geoPoint.getLatitude()));
@@ -335,15 +344,23 @@ public class OSM_MapActivity extends AppCompatActivity {
         this.currentSpeed = currentSpeed;
     }
 
+    public void setCurrentLatitude(Double latitude){this.currentLatitude = latitude;}
+
+    public void setCurrentLongitude(Double longitude){this.currentLongitude = longitude;}
+
+    public Double getCurrentLatitude() {return currentLatitude;}
+
+    public Double getCurrentLongitude() {return currentLongitude;}
+
     private String getAveragePeace(int distanceInMeters, int timeInSeconds){
         if(distanceInMeters>0){
             double division = ((double)timeInSeconds)/distanceInMeters;
             String minutes = String.valueOf(((double)Integer.parseInt(String.valueOf(division).split("\\.")[1].substring(0,3)))/60).split("\\.")[0];
             String seconds  = String.valueOf(Integer.parseInt(String.valueOf(division).split("\\.")[1].substring(0,3)) - (Integer.parseInt(minutes) *60));
 
-            return minutes + ":" + seconds + " Min/km";
+            return minutes + ":" + seconds;
         }
-        else return (getFormatInMilliseconds(timeInMilliseconds) + " Min/km");
+        else return (getFormatInMilliseconds(timeInMilliseconds));
     }
 
     private int getSeconds(String timer){

@@ -86,6 +86,25 @@ class DB_Functions {
         }
     }
 
+    public function storeImages($bitmapString, $track_id, $user_id, $latitude, $longitude){
+        $stmt = $this->conn->prepare("INSERT INTO tracking_images (track_id, bitmapString, latitude, longitude) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param ("ssss", $track_id, $bitmapString, $latitude, $longitude);
+        $result = $stmt->execute();
+        $stmt->close();
+        //Check if activity images were successfully stored
+        if($result) {
+            $stmt = $this->conn->prepare("SELECT * FROM tracking_images WHERE track_id = ?");
+            $stmt->bind_param("s", $track_id);
+            $stmt->execute();
+            $activity_images = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+
+            return $activity_images;
+        } else{
+            return false;
+        }
+    }
+
     public function getActivityDetails($user_id){
         $activity_details = array();
         $index = 0;
@@ -112,6 +131,36 @@ class DB_Functions {
         }
         $stmt->close();
         return $activity_gps_coordinates;
+    }
+
+    public function getActivityImages($track_id){
+        $activity_images = array();
+        $index = 0;
+        $key = 'img';
+        $stmt = $this->conn->prepare("SELECT bitmapString FROM tracking_images WHERE track_id = ?");
+        $stmt->bind_param("s", $track_id);
+        $stmt->execute();
+        $aux = $stmt->get_result();
+        while($row = $aux->fetch_assoc()){
+            $activity_images[$key.$index++] = $row["bitmapString"];
+        }
+        $stmt->close();
+        return $activity_images;
+
+
+    }
+
+    public function getActivityMaxSpeed($track_id){
+        $stmt = $this->conn->prepare("SELECT MAX(current_speed) AS 'maxSpeed' FROM tracking_activities WHERE track_id = ?");
+        $stmt->bind_param("s", $track_id);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        if($result){
+            return $result["maxSpeed"];
+        }else{
+            return FALSE;
+        }
     }
  
     /**
@@ -191,5 +240,4 @@ class DB_Functions {
     }
  
 }
- 
 ?>

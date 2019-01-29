@@ -33,3 +33,11 @@ create table activities_details(
 	total_distance varchar(100) not null default "0.0",
 	avg_time varchar(100) not null
 );
+
+create table tracking_images (
+	id int(11) PRIMARY KEY AUTO_INCREMENT,
+	track_id varchar(23) not null,
+	bitmapString BLOB  not null,
+	latitude varchar(100) not null default "0.0",
+	longitude varchar(100) not null default "0.0"
+);
