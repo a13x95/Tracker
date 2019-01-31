@@ -33,7 +33,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
     <link rel="stylesheet" href="css/style.css">
 
 </head>
-<body id="grad">
+<body>
 <!--Navbar -->
 <nav class="mb-1 navbar navbar-expand-lg  navbar-dark bg-dark">
     <a class="navbar-brand" href="index.php">Tracker</a>
@@ -62,7 +62,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
 <!--Navbar -->
 
 
-<div class="jumbotron jumbotron-sm" id="grad">
+<div class="jumbotron jumbotron-sm">
     <div class="container">
         <div class="row">
             <div class="col-sm-12 col-lg-12">
@@ -114,10 +114,9 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
         </div>
     </div>
 </div>
-
 </body>
 <!-- Footer -->
-<footer class="footer container-fluid bg-4 text-center">
+<footer>
     <div class="text-center py-3">© 2019 Copyright:
         <a href="index.php"> Tracker </a>
     </div>

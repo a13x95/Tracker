@@ -16,11 +16,7 @@ class DB_Functions {
     function __destruct() {
          
     }
- 
-    /**
-     * Storing new user
-     * returns user details
-     */
+
     public function storeUser($name, $email, $password) {
         $uuid = uniqid('', true);
         $hash = $this->hashSSHA($password);
@@ -44,6 +40,46 @@ class DB_Functions {
         } else {
             return false;
         }
+    }
+
+    public function updateInfo($name,$email,$current_password,$new_password,$confirm_new_password, $user_id){
+        //check current password
+        $response = array();
+        $stmt = $this->conn->prepare("SELECT * FROM users WHERE unique_id = ?");
+        $stmt->bind_param("s", $user_id);
+        if ($stmt->execute()) {
+            $user = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            // verifying user password
+            $salt = $user['salt'];
+            $encrypted_password = $user['encrypted_password'];
+            $hash = $this->checkhashSSHA($salt, $current_password);
+            // check for password equality
+            if ($encrypted_password == $hash) {
+                if($new_password == $confirm_new_password){
+                    $new_pass_hash = $this->hashSSHA($new_password);
+                    $new_salt = $new_pass_hash["salt"];
+                    $new_encrypted_password = $new_pass_hash["encrypted"];
+                    $stmt = $this->conn->prepare("UPDATE users SET name = ?, email = ?, encrypted_password = ?, salt = ? WHERE unique_id = ?");
+                    $stmt->bind_param("sssss", $name,$email, $new_encrypted_password, $new_salt, $user_id);
+                    if($stmt->execute()){
+                        $stmt->close();
+                        $response["error"] = "false";
+                    } else {
+                        $response["error"] = "Error occurred while updating database!";
+                        return $response;
+                    }
+                } else {
+                    $response["error"] = "Passwords don't match!";
+                    return $response;
+                }
+            } else {
+                $response["error"] = "Wrong password";
+                return $response;
+            }
+        } else {
+            $response["error"] = "Error while interrogating the DB";
+            return $response;}
     }
 
     public function storeActivity($track_id, $user_id, $latitude, $longitude, $altitude, $speed, $timestamp){
@@ -159,23 +195,17 @@ class DB_Functions {
         if($result){
             return $result["maxSpeed"];
         }else{
-            return FALSE;
+            return false;
         }
     }
- 
-    /**
-     * Get user by email and password
-     */
+
     public function getUserByEmailAndPassword($email, $password) {
  
         $stmt = $this->conn->prepare("SELECT * FROM users WHERE email = ?");
- 
         $stmt->bind_param("s", $email);
- 
         if ($stmt->execute()) {
             $user = $stmt->get_result()->fetch_assoc();
             $stmt->close();
- 
             // verifying user password
             $salt = $user['salt'];
             $encrypted_password = $user['encrypted_password'];
@@ -186,13 +216,10 @@ class DB_Functions {
                 return $user;
             }
         } else {
-            return NULL;
+            return false;
         }
     }
- 
-    /**
-     * Check user is existed or not
-     */
+
     public function isUserExisted($email) {
         $stmt = $this->conn->prepare("SELECT email from users WHERE email = ?");
  
@@ -212,12 +239,7 @@ class DB_Functions {
             return false;
         }
     }
- 
-    /**
-     * Encrypting password
-     * @param password
-     * returns salt and encrypted password
-     */
+
     public function hashSSHA($password) {
  
         $salt = sha1(rand());
@@ -226,18 +248,12 @@ class DB_Functions {
         $hash = array("salt" => $salt, "encrypted" => $encrypted);
         return $hash;
     }
- 
-    /**
-     * Decrypting password
-     * @param salt, password
-     * returns hash string
-     */
+
     public function checkhashSSHA($salt, $password) {
  
         $hash = base64_encode(sha1($password . $salt, true) . $salt);
  
         return $hash;
     }
- 
 }
 ?>

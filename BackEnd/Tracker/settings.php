@@ -33,7 +33,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
     <link rel="stylesheet" href="css/style.css">
 
 </head>
-<body id="grad">
+<body>
 <!--Navbar -->
 <nav class="mb-1 navbar navbar-expand-lg  navbar-dark bg-dark">
     <a class="navbar-brand" href="index.php">Tracker</a>
@@ -60,25 +60,62 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
     </div>
 </nav>
 <!--Navbar -->
-
-<div class="container">
-    <div class="row">
-        <div class="col-sm-2">
-        </div>
-        <div class="col-sm-8">
-            <div class="card">
+<!--
                 <h1><?php echo $_SESSION["name"]?></h1>
                 <p class="email"><?php echo $_SESSION["email"]?></p>
+ -->
+<div class="container h-100">
+    <div class="d-flex justify-content-center h-100">
+        <div class="edit_settings_card">
+            <div class="d-flex justify-content-center settings_form_container">
+                <form action="save_settings.php" method="post">
+                    <input type="hidden" name="user_id" value="<?php echo $_SESSION["user_id"];?>">
+                    <div class="input-group mb-3">
+                        <div class="input-group-append">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        </div>
+                        <input type="text" name="name" class="form-control input_name" placeholder="Change name" required="required">
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <div class="input-group-append">
+                            <span class="input-group-text"><i class="fas fa-at"></i></span>
+                        </div>
+                        <input type="email" name="email" class="form-control input_email" placeholder="Change email" required="required">
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <div class="input-group-append">
+                            <span class="input-group-text"><i class="fas fa-key"></i></span>
+                        </div>
+                        <input type="password" name="current_password" class="form-control input_current_pass" placeholder="Current Password" required="required">
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <div class="input-group-append">
+                            <span class="input-group-text"><i class="fas fa-key"></i></span>
+                        </div>
+                        <input type="password" name="new_password" class="form-control input_new_password" placeholder="New Password" required="required">
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <div class="input-group-append">
+                            <span class="input-group-text"><i class="fas fa-key"></i></span>
+                        </div>
+                        <input type="password" name="confirm_new_password" class="form-control input_confirm_password" placeholder="Confirm New Password" required="required">
+                    </div>
+
+                    <div class="input-group mb-4 save_settings_container">
+                        <button class="btn save_btn" type="submit" name="button">Save Changes <i class="fas fa-save"></i></button>
+                    </div>
+                </form>
             </div>
-        </div>
-        <div class="col-sm-2">
         </div>
     </div>
 </div>
-
 </body>
 <!-- Footer -->
-<footer class="footer container-fluid bg-4 text-center">
+<footer>
     <div class="text-center py-3">© 2019 Copyright:
         <a href="index.php"> Tracker </a>
     </div>

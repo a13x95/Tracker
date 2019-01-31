@@ -96,7 +96,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
     </script>
 
 </head>
-<body id="grad">
+<body>
 
 <!--Navbar -->
 <nav class="mb-1 navbar navbar-expand-lg  navbar-dark bg-dark">
@@ -194,12 +194,12 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
         </div>
     </div>
 </div>
+</body>
 
 <!-- Footer -->
-<footer class="footer container-fluid bg-4 text-center">
+<footer>
     <div class="text-center py-3">© 2019 Copyright:
         <a href="index.php"> Tracker </a>
     </div>
 </footer>
-</body>
 </html>
