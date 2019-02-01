@@ -20,6 +20,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
             $activity_max_elevation = $db->getActivityElevation($_POST['activity_track_id']);
             //Get an array with all gps coordinates for a specific activity that was recorded
             $activity_GPS_coordinates = $db->getActivityGPSCoordinates($_POST['activity_track_id']);
+            $activity_image_gps_coordinates = $db->getImageGPSCoordinates($_POST['activity_track_id']);
             $activity_elevation_points = $db->getActivityElevationPoints($_POST['activity_track_id']);
             //Get an array with all base64 string images
             $activity_images = $db->getActivityImages($_POST['activity_track_id']);
@@ -32,12 +33,15 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
                     $total_distance = $row["total_distance"];
                 }
             }
+            $img_array = array();
             if($activity_images){
                 $index = 0;
                 foreach ($activity_images as $key => $value){
                     $data = base64_decode($value);
                     if($data){
-                        file_put_contents('images/'.$_POST['activity_track_id'].$index++.'.png', $data);
+                        file_put_contents('images/'.$_POST['activity_track_id'].$index.'.png', $data);
+                        $img_array[$index]="images/".$_POST['activity_track_id'].$index.".png";
+                        $index++;
                     } else {
                         echo 'An error occurred while creating image from decoded base64 string.';
                         break;
@@ -62,6 +66,8 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
             //print_r($activity_GPS_coordinates[0]["latitude"]);
             //print_r(sizeof($activity_GPS_coordinates)." ". sizeof($activity_elevation_points));
             //print_r(sizeof($distance_array));
+            //print_r($img_array);
+
         }
     }
     else{
@@ -76,19 +82,11 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
     <title>Details</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <!--Chart.js-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
-
     <!--Leaflet-->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js" integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg==" crossorigin=""></script>
+
     <link rel="stylesheet" href="css/style.css?v={random number/string}">
 
     <script>
@@ -106,9 +104,21 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
 
             // create a red polyline from an array of LatLng points
             var data_polyline = new Array();
+
+            L.marker([coordinates[0].latitude,coordinates[0].longitude], {title: "Starting Point"}).addTo(mymap);
+
             for(var i=0; i<coordinates.length; i++){
                 //console.log(coordinates[i].latitude, coordinates[i].latitude);
                 data_polyline.push([coordinates[i].latitude, coordinates[i].longitude]);
+            }
+
+            L.marker([coordinates[i-1].latitude,coordinates[i-1].longitude], {title: "End Point"}).addTo(mymap);
+
+            //Put markers where photo was taken
+            var imagesCoordinates = <?php echo json_encode($activity_image_gps_coordinates); ?>;
+            for(var i=0; i<imagesCoordinates.length; i++){
+                console.log(imagesCoordinates[i].latitude, imagesCoordinates[i].latitude);
+                L.marker([imagesCoordinates[i].latitude,imagesCoordinates[i].longitude], {title: "image".concat(i)}).addTo(mymap);
             }
             var polyline = L.polyline(data_polyline, {color: 'red'}).addTo(mymap);
             // zoom the map to the polyline
@@ -123,7 +133,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
                 data: {
                     labels: distance,
                     datasets: [{
-                        label: "Elevation Chart (m)",
+                        label: "Elevation (m)",
                         backgroundColor: 'rgb(220, 53, 69)',
                         borderColor: 'rgb(0, 0, 0)',
                         data: elevation_points,
@@ -136,6 +146,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
 
             });
         }
+
     </script>
 
 </head>
@@ -256,10 +267,52 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
         <div class="elevation_card">
             <canvas id="elevationChart"></canvas>
         </div>
+    </div>
 
+    <div class="carousel slide carousel_container" data-ride="carousel" id="imgCarousel" data-interval="3000">
+        <ol class="carousel-indicators">
+            <?php
+            for($i = 0; $i<sizeof($img_array); $i++){
+                echo "<li data-target=\"#imgCarousel\" data-slide-to=\"".$i."\"";
+                if($i==0) {
+                    echo " class=\"active\"";
+                }
+                echo "></li>";
+            }
+            ?>
+        </ol>
 
+        <div class="carousel-inner" role="listbox">
+            <?php
+            for($i = 0; $i<sizeof($img_array); $i++){
+                echo "<div class=\"carousel-item";
+                if($i==0) {
+                    echo " active\"";
+                }
+                echo "\"><img class=\"mx-auto d-block\" src=\"".$img_array[$i]."\" alt=\"Image ".$i."\">  </div>";
+            }
+            ?>
+        </div>
+
+        <a class="carousel-control-prev" role="button" href="#imgCarousel" data-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" role="button"  href="#imgCarousel" data-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+        </a>
     </div>
 </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!--Chart.js-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+    <!--Leaflet-->
+    <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js" integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg==" crossorigin=""></script>
 </body>
 
 <!-- Footer -->

@@ -113,12 +113,15 @@ footer {
     background-color: #343a40;
     color: #ffffff;
 }
-
 .container-fluid,
 .container{
     margin-bottom: 60px !important;
 }
 
+.carousel_container {
+    margin-top: 20px;
+    background-color: white;
+}
 .elevation_card {
     height: 200px;
     width: 100%;
@@ -127,6 +130,13 @@ footer {
     margin-bottom: auto;
     padding: 10px;
 }
-
+.carousel-inner{
+    width: 100%;
+    height: 350px;
+}
+.carousel-inner img{
+    width: 100%;
+    height: 50% ;
+}
 
 

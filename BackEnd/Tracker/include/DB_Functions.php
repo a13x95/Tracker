@@ -169,6 +169,21 @@ class DB_Functions {
         return $activity_gps_coordinates;
     }
 
+    public function  getImageGPSCoordinates($track_id){
+        $images_gps_coordinates = array();
+        $index = 0;
+        $stmt = $this->conn->prepare("SELECT latitude, longitude FROM tracking_images WHERE track_id = ?");
+        $stmt->bind_param("s", $track_id);
+        $stmt->execute();
+        $aux = $stmt->get_result();
+        while($row = $aux->fetch_assoc()){
+            $images_gps_coordinates[$index++] = $row;
+        }
+        $stmt->close();
+        return $images_gps_coordinates;
+    }
+
+
     public function getActivityElevationPoints($track_id){
         $activity_elevation_points = array();
         $index = 0;
