@@ -5,7 +5,22 @@ body {
 .navbar {
     margin:0 !important;
 }
-
+.upload_container{
+    height: 250px;
+    width: 650px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    padding: 10px;
+    position: relative;
+    margin-bottom: auto;
+    margin-top: 30px;
+    background: #343a40;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    -webkit-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    -moz-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
 .edit_settings_card {
     height: 500px;
     width: 450px;
@@ -28,6 +43,10 @@ body {
 }
 .save_btn{
     width: 100%;
+    background: #dc3545 !important;
+    color: white !important;
+}
+.upload_btn{
     background: #dc3545 !important;
     color: white !important;
 }
@@ -70,6 +89,7 @@ body {
     margin-right: -30px;
 }
 
+
 .jumbotron {
     background-color: darkgray;
     color: #000;
@@ -92,6 +112,10 @@ footer {
     height: 50px;
     background-color: #343a40;
     color: #ffffff;
+}
+
+.container-fluid {
+    margin-bottom: 60px !important;
 }
 
 

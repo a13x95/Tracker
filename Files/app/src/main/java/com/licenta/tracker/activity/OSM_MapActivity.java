@@ -240,7 +240,7 @@ public class OSM_MapActivity extends AppCompatActivity {
                             mapController.setCenter(geoPoint);
                             gpsLatitude.setText(String.valueOf(geoPoint.getLatitude()));
                             gpsLongitude.setText(String.valueOf(geoPoint.getLongitude()));
-                            createJSON(geoPoint.getLatitude(), geoPoint.getLongitude(), geoPoint.getAltitude(), getCurrentSpeed(),getTimestamp("dd-MM-yyyy hh-mm-ss"));
+                            createJSON(geoPoint.getLatitude(), geoPoint.getLongitude(), geoPoint.getAltitude(), getCurrentSpeed(),getTimestamp("dd-MM-yyyy hh:mm:ss"));
                             //showLiveTrack(geoPointsList);
                         }else if(geoPointsList.size() > 0 && !(geoPointsList.get(geoPointsList.size()-1).equals(geoPoint))){//add geoPoint to list only if the current one is different than previous
                                 geoPointsList.add(geoPoint);
@@ -249,7 +249,7 @@ public class OSM_MapActivity extends AppCompatActivity {
                                 mapController.setCenter(geoPoint);
                                 gpsLatitude.setText(String.valueOf(geoPoint.getLatitude()));
                                 gpsLongitude.setText(String.valueOf(geoPoint.getLongitude()));
-                                createJSON(geoPoint.getLatitude(), geoPoint.getLongitude(), geoPoint.getAltitude(), getCurrentSpeed(),getTimestamp("dd-MM-yyyy hh-mm-ss"));
+                                createJSON(geoPoint.getLatitude(), geoPoint.getLongitude(), geoPoint.getAltitude(), getCurrentSpeed(),getTimestamp("dd-MM-yyyy hh:mm:ss"));
                                 //showLiveTrack(geoPointsList);
                         }
                     }

@@ -255,5 +255,44 @@ class DB_Functions {
  
         return $hash;
     }
+
+    public function getTimeDiff ($time1, $time2){// format string = "2018-11-11T19:42:53Z"
+        $str1 = substr($time1,-20, -10)." ".substr($time1,-9, -4);
+        $str2 = substr($time2,-20, -10)." ".substr($time2,-9, -4);
+        $timestamp1 = strtotime($str1);
+        $timestamp2 = strtotime($str2);
+        $seconds = abs($timestamp1-$timestamp2);
+        $hours = floor($seconds / 3600);
+        $mins = floor($seconds / 60 % 60);
+        $secs = floor($seconds % 60);
+        $result = "0".$hours.":".$mins.":".$secs."0";
+
+        return $result;
+    }
+
+    public static function getVincentyGreatDistance($latitudeStart, $longitudeStart, $latitudeEnd, $longitudeEnd, $earthRadius){
+        $latStart = deg2rad(floatval($latitudeStart));
+        $lonStart = deg2rad(floatval($longitudeStart));
+        $latEnd = deg2rad(floatval($latitudeEnd));
+        $lonEnd = deg2rad(floatval($longitudeEnd));
+
+        $delta = $lonEnd - $lonStart;
+        $a = pow(cos($latEnd)*sin($delta),2) + pow(cos($latStart) * sin($latEnd) - sin($latStart) * cos($latEnd) * cos($delta), 2);
+        $b = sin($latStart) * sin($latEnd) + cos($latStart) * cos($latEnd) * cos($delta);
+        $angle = atan2(sqrt($a), $b);
+        return $angle*$earthRadius;
+    }
+
+    public static function getAverageSpeed($distance, $totalTime){
+        $hours = substr($totalTime,-8,-6);
+        $minutes = substr($totalTime,-5,-3);
+        $seconds = substr($totalTime,-2);
+
+        $time=($hours*3600)+($minutes*60)+$seconds;
+        $speed=$time/$distance;
+        $formated=date('i:s', $speed);
+
+        return $formated;
+    }
 }
 ?>

@@ -53,7 +53,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
                 <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fas fa-user"></i> Profile </a>
                 <div class="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="navbarDropdownMenuLink">
                     <a class="dropdown-item" href="settings.php">Settings</a>
-                    <a class="dropdown-item" href="#">Import Activity</a>
+                    <a class="dropdown-item" href="importgpx.php">Import Activity</a>
                     <a class="dropdown-item" href="logout.php">Log out</a>
                 </div>
             </li>
