@@ -169,6 +169,20 @@ class DB_Functions {
         return $activity_gps_coordinates;
     }
 
+    public function getActivityElevationPoints($track_id){
+        $activity_elevation_points = array();
+        $index = 0;
+        $stmt = $this->conn->prepare("SELECT altitude FROM tracking_activities WHERE track_id = ?");
+        $stmt->bind_param("s", $track_id);
+        $stmt->execute();
+        $aux = $stmt->get_result();
+        while($row = $aux->fetch_assoc()){
+            $activity_elevation_points[$index++] = $row["altitude"];
+        }
+        $stmt->close();
+        return $activity_elevation_points;
+    }
+
     public function getActivityImages($track_id){
         $activity_images = array();
         $index = 0;
@@ -186,14 +200,14 @@ class DB_Functions {
 
     }
 
-    public function getActivityMaxSpeed($track_id){
-        $stmt = $this->conn->prepare("SELECT MAX(current_speed) AS 'maxSpeed' FROM tracking_activities WHERE track_id = ?");
+    public function getActivityElevation($track_id){
+        $stmt = $this->conn->prepare("SELECT MAX(altitude) AS 'maxaltitude' FROM tracking_activities WHERE track_id = ?");
         $stmt->bind_param("s", $track_id);
         $stmt->execute();
         $result = $stmt->get_result()->fetch_assoc();
         $stmt->close();
         if($result){
-            return $result["maxSpeed"];
+            return $result["maxaltitude"];
         }else{
             return false;
         }

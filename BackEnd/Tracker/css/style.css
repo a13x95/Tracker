@@ -114,8 +114,19 @@ footer {
     color: #ffffff;
 }
 
-.container-fluid {
+.container-fluid,
+.container{
     margin-bottom: 60px !important;
 }
+
+.elevation_card {
+    height: 200px;
+    width: 100%;
+    background: white;
+    position: relative;
+    margin-bottom: auto;
+    padding: 10px;
+}
+
 
 

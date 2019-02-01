@@ -17,9 +17,10 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         if (isset($_POST['activity_track_id'])){
             //Get max speed of a specific activity
-            $activity_max_speed = $db->getActivityMaxSpeed($_POST['activity_track_id']);
+            $activity_max_elevation = $db->getActivityElevation($_POST['activity_track_id']);
             //Get an array with all gps coordinates for a specific activity that was recorded
             $activity_GPS_coordinates = $db->getActivityGPSCoordinates($_POST['activity_track_id']);
+            $activity_elevation_points = $db->getActivityElevationPoints($_POST['activity_track_id']);
             //Get an array with all base64 string images
             $activity_images = $db->getActivityImages($_POST['activity_track_id']);
 
@@ -28,6 +29,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
                     $activity_name = $row["activity_name"];
                     $total_time = $row["total_time"];
                     $avg_peace = $row["avg_time"];
+                    $total_distance = $row["total_distance"];
                 }
             }
             if($activity_images){
@@ -42,7 +44,24 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
                     }
                 }
             }
-            //print_r($activity_images["img1"]);
+            $startLat = null;
+            $startLon = null;
+            $distance_sum =0.0;
+            $distance_array = array();
+            for($i = 0; $i<sizeof($activity_GPS_coordinates); $i++){
+                $endLat = $activity_GPS_coordinates[$i]["latitude"];
+                $endLon = $activity_GPS_coordinates[$i]["longitude"];
+                if($startLat && $startLon){
+                    $distance = $db->getVincentyGreatDistance($startLat,$startLon,$endLat,$endLon,6371000);
+                    $distance_sum += $distance;
+                    $distance_array[$i-1]=round($distance_sum, 2);
+                }
+                $startLat = $activity_GPS_coordinates[$i]["latitude"];
+                $startLon = $activity_GPS_coordinates[$i]["longitude"];
+            }
+            //print_r($activity_GPS_coordinates[0]["latitude"]);
+            //print_r(sizeof($activity_GPS_coordinates)." ". sizeof($activity_elevation_points));
+            //print_r(sizeof($distance_array));
         }
     }
     else{
@@ -64,6 +83,8 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!--Chart.js-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
 
     <!--Leaflet-->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin=""/>
@@ -92,6 +113,28 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
             var polyline = L.polyline(data_polyline, {color: 'red'}).addTo(mymap);
             // zoom the map to the polyline
             mymap.fitBounds(polyline.getBounds());
+
+            //Elevation chart
+            var distance = <?php echo json_encode($distance_array); ?>;
+            var elevation_points = <?php echo json_encode($activity_elevation_points); ?>;
+            var ctx = document.getElementById('elevationChart').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: distance,
+                    datasets: [{
+                        label: "Elevation Chart (m)",
+                        backgroundColor: 'rgb(220, 53, 69)',
+                        borderColor: 'rgb(0, 0, 0)',
+                        data: elevation_points,
+                        pointBackgroundColor: 'rgb(255, 255, 255)'
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false
+                }
+
+            });
         }
     </script>
 
@@ -148,7 +191,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
     </div>
 
     <div class="row content panel-title">
-        <div class="col-sm-4 text-center">
+        <div class="col-sm-3 text-center">
             <div class="table-responsive-sm">
                 <table class="table table-light">
                     <thead class="thead-dark">
@@ -163,7 +206,22 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
             </div>
         </div>
 
-        <div class="col-sm-4 text-center">
+        <div class="col-sm-3 text-center">
+            <div class="table-responsive-sm">
+                <table class="table table-light">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Total distance</th>
+                    </tr>
+                    </thead>
+                    <tr><td scope="row"><?php echo $total_distance; ?></td></tr>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-sm-3 text-center">
              <div class="table-responsive-sm">
                 <table class="table table-light">
                     <thead class="thead-dark">
@@ -178,20 +236,28 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
              </div>
         </div>
 
-        <div class="col-sm-4 text-center">
+        <div class="col-sm-3 text-center">
             <div class="table-responsive-sm">
                 <table class="table table-light">
                     <thead class="thead-dark">
                     <tr>
-                        <th scope="col">Max Speed</th>
+                        <th scope="col">Max Elevation</th>
                     </tr>
                     </thead>
-                    <tr><td scope="row"><?php echo $activity_max_speed." km/h"; ?></td></tr>
+                    <tr><td scope="row"><?php echo $activity_max_elevation." m"; ?></td></tr>
                     <tbody>
                     </tbody>
                 </table>
             </div>
         </div>
+    </div>
+
+    <div class="row">
+        <div class="elevation_card">
+            <canvas id="elevationChart"></canvas>
+        </div>
+
+
     </div>
 </div>
 </body>
