@@ -19,8 +19,8 @@ create table tracking_activities (
 	user_id varchar(23) not null,
 	latitude varchar(100) not null default "0.0",
 	longitude varchar(100) not null default "0.0",
-	altitude int not null default 0,
-	current_speed int not null default 0,
+	altitude int default 0,
+	current_speed int default 0,
 	time_stamp varchar(100) default ""
 );
 
@@ -32,12 +32,13 @@ create table activities_details(
 	total_time varchar (100) not null,
 	total_distance varchar(100) not null default "0.0",
 	avg_time varchar(100) not null
+	time_stamp varchar(100) default ""
 );
 
 create table tracking_images (
 	id int(11) PRIMARY KEY AUTO_INCREMENT,
 	track_id varchar(23) not null,
-	bitmapString BLOB  not null,
+	bitmapString MEDIUMBLOB  not null,
 	latitude varchar(100) not null default "0.0",
 	longitude varchar(100) not null default "0.0"
 );

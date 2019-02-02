@@ -210,8 +210,8 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
                         <th scope="col">Total Time</th>
                     </tr>
                     </thead>
-                    <tr><td scope="row"><?php echo $total_time; ?></td></tr>
                     <tbody>
+                        <tr><td scope="row"><?php echo $total_time; ?></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -225,8 +225,8 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
                         <th scope="col">Total distance</th>
                     </tr>
                     </thead>
-                    <tr><td scope="row"><?php echo $total_distance; ?></td></tr>
                     <tbody>
+                        <tr><td scope="row"><?php echo $total_distance; ?></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -240,8 +240,8 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
                         <th scope="col">Avg Peace</th>
                     </tr>
                     </thead>
-                    <tr><td scope="row"><?php echo $avg_peace." min/km"; ?></td></tr>
                     <tbody>
+                        <tr><td scope="row"><?php echo $avg_peace." min/km"; ?></td></tr>
                     </tbody>
                 </table>
              </div>
@@ -255,8 +255,8 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
                         <th scope="col">Max Elevation</th>
                     </tr>
                     </thead>
-                    <tr><td scope="row"><?php echo $activity_max_elevation." m"; ?></td></tr>
                     <tbody>
+                        <tr><td scope="row"><?php echo $activity_max_elevation." m"; ?></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -268,41 +268,42 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
             <canvas id="elevationChart"></canvas>
         </div>
     </div>
-
-    <div class="carousel slide carousel_container" data-ride="carousel" id="imgCarousel" data-interval="3000">
-        <ol class="carousel-indicators">
-            <?php
-            for($i = 0; $i<sizeof($img_array); $i++){
-                echo "<li data-target=\"#imgCarousel\" data-slide-to=\"".$i."\"";
-                if($i==0) {
-                    echo " class=\"active\"";
+    <?php if($img_array){?>
+        <div class="carousel slide carousel_container" data-ride="carousel" id="imgCarousel" data-interval="3000">
+            <ol class="carousel-indicators">
+                <?php
+                for($i = 0; $i<sizeof($img_array); $i++){
+                    echo "<li data-target=\"#imgCarousel\" data-slide-to=\"".$i."\"";
+                    if($i==0) {
+                        echo " class=\"active\"";
+                    }
+                    echo "></li>";
                 }
-                echo "></li>";
-            }
-            ?>
-        </ol>
+                ?>
+            </ol>
 
-        <div class="carousel-inner" role="listbox">
-            <?php
-            for($i = 0; $i<sizeof($img_array); $i++){
-                echo "<div class=\"carousel-item";
-                if($i==0) {
-                    echo " active\"";
+            <div class="carousel-inner" role="listbox">
+                <?php
+                for($i = 0; $i<sizeof($img_array); $i++){
+                    echo "<div class=\"carousel-item";
+                    if($i==0) {
+                        echo " active\"";
+                    }
+                    echo "\"><img class=\"d-block\" src=\"".$img_array[$i]."\" alt=\"Image ".$i."\">  </div>";
                 }
-                echo "\"><img class=\"mx-auto d-block\" src=\"".$img_array[$i]."\" alt=\"Image ".$i."\">  </div>";
-            }
-            ?>
+                ?>
+            </div>
+
+            <a class="carousel-control-prev" role="button" href="#imgCarousel" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" role="button"  href="#imgCarousel" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
         </div>
-
-        <a class="carousel-control-prev" role="button" href="#imgCarousel" data-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="sr-only">Previous</span>
-        </a>
-        <a class="carousel-control-next" role="button"  href="#imgCarousel" data-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="sr-only">Next</span>
-        </a>
-    </div>
+    <?php } ?>
 </div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>

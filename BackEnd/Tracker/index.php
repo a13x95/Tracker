@@ -13,7 +13,26 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
     //Retrieve data from DB about activities details that will be put inside the table.
     $activitiy_details = $db->getActivityDetails($_SESSION["user_id"]);
     $total_activities = sizeof($activitiy_details);
-    //print_r($activitiy_details);
+
+    $currentMonthNrDays = date('t');
+    $monthArrayLabels = array();
+    $monthArrayActivity = array();
+    for($i = 0; $i <$currentMonthNrDays; $i++){
+        $monthArrayLabels[$i]=$i+1;
+        $monthArrayActivity[$i] = 0;
+    }
+    $activitiesThisMonth =0;
+    //Check which activities were tracked in the current month
+    foreach ($activitiy_details as $key){
+        if(date('m', strtotime($key["time_stamp"])) === date('m')){
+            $day = date('j', strtotime($key["time_stamp"]));
+            $monthArrayActivity[$day-1] += 1;
+            $activitiesThisMonth++;
+        }
+    }
+    //print_r($monthArrayActivity);
+
+
 }
 ?>
 
@@ -25,13 +44,34 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="css/style.css">
 
+    <script>
+        window.onload = function () {
+            var monthdays = <?php echo json_encode($monthArrayLabels); ?>;
+            var monthactivity = <?php echo json_encode($monthArrayActivity); ?>;
+            var ctx = document.getElementById('activityChart').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: monthdays,
+                    datasets: [{
+                        label: "Activities",
+                        backgroundColor: 'rgb(220, 53, 69)',
+                        borderColor: 'rgb(0, 0, 0)',
+                        data: monthactivity,
+                        pointBackgroundColor: 'rgb(255, 255, 255)'
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false
+                }
+
+            });
+
+        }
+    </script>
 </head>
 <body>
 
@@ -63,12 +103,84 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
 <!--Navbar -->
 
 <div class="container-fluid text-center">
-    <div class="row content">
-        <div class="col-sm-1 sidenav">
+
+    <div class="row">
+        <div class="col-sm-2 sidenav">
 
         </div>
-        <div class="col-sm-10 text-left">
+        <div class="col-sm-4">
+            <div class="table-responsive-sm">
+                <table class="table table-light">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Activities this month</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="activity_chart">
+                <canvas id="activityChart"></canvas>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="table-responsive-sm">
+                <table class="table table-light">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th scope="col"> Activities</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="col">
+                <div class="row">
+                    <div class="table-responsive-sm" style="width: 50%;">
+                        <table class="table table-light">
+                            <thead class="thead">
+                            <tr>
+                                <th scope="col"> This Month</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr><td scope="row"><b><?php echo $activitiesThisMonth;?></b></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-responsive-sm" style="width: 50%;">
+                        <table class="table table-light">
+                            <thead class="thead">
+                            <tr>
+                                <th scope="col"> Total Activities</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr><td scope="row"><b><?php echo $total_activities;?></b></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2 sidenav">
+
+        </div>
+    </div>
+    <div class="row content">
+        <div class="col-sm-2 sidenav">
+
+        </div>
+        <div class="col-sm-8 text-center">
             <?php  if($activitiy_details){ ?>
+            <div class="table-responsive-sm">
+                <table class="table table-light">
+                    <thead class="thead">
+                    <tr>
+                        <th scope="col"> Most recent activities</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
             <div class="table-responsive-sm">
                 <table class="table table-hover table-dark">
                     <thead>
@@ -84,12 +196,14 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
                     <tbody>
                     <?php
                         $id=1;
-                        foreach ($activitiy_details as $row){
-                            $activity_track_id = $row["track_id"];
-                            $activity_name = $row["activity_name"];
-                            $total_time = $row["total_time"];
-                            $avg_time = $row["avg_time"];
-                            $total_distance = $row["total_distance"];
+                        $index = count($activitiy_details);
+                        while ($index){
+                            --$index;
+                            $activity_track_id = $activitiy_details[$index]["track_id"];
+                            $activity_name = $activitiy_details[$index]["activity_name"];
+                            $total_time = $activitiy_details[$index]["total_time"];
+                            $avg_time = $activitiy_details[$index]["avg_time"];
+                            $total_distance = $activitiy_details[$index]["total_distance"];
                             echo "<tr><td scope=\"row\">".$id++."</td>"."<td>".$activity_name."</td>"."<td>".$total_time."</td>"."<td>".$avg_time."</td>"."<td>".$total_distance."</td>";
                             echo "<td><form action='activity_details.php' method='post'> <button class='btn btn-sm btn-danger' type='submit' name='activity_track_id' value=$activity_track_id>Details</button> </form></td>"."</tr>";
                         }
@@ -98,14 +212,31 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
                 </table>
             </div>
 
-            <?php } else {echo "User didn't tracked any activities";}?>
+            <?php } else {?>
+                <div class="table-responsive-sm">
+                    <table class="table table-light">
+                        <thead class="thead">
+                        <tr>
+                            <th scope="col"> You didn't tracked any activities yet.</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            <?php }?>
 
         </div>
-        <div class="col-sm-1 sidenav">
+        <div class="col-sm-2 sidenav">
 
         </div>
     </div>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<!--Chart.js-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
 </body>
 <!-- Footer -->
 <footer>

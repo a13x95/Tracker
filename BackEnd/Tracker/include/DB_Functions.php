@@ -103,7 +103,7 @@ class DB_Functions {
     }
 
     public function storeActivityDetails($user_id, $track_id, $activity_name, $total_time, $total_distance, $avg_time){
-        $stmt = $this->conn->prepare("INSERT INTO activities_details (user_id, track_id, activity_name, total_time, total_distance, avg_time) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt = $this->conn->prepare("INSERT INTO activities_details (user_id, track_id, activity_name, total_time, total_distance, avg_time, time_stamp) VALUES (?, ?, ?, ?, ?, ?, NOW())");
         $stmt->bind_param("ssssss", $user_id, $track_id, $activity_name, $total_time, $total_distance, $avg_time);
         $result = $stmt->execute();
         $stmt->close();
@@ -144,7 +144,7 @@ class DB_Functions {
     public function getActivityDetails($user_id){
         $activity_details = array();
         $index = 0;
-        $stmt = $this->conn->prepare("SELECT track_id, id, activity_name, total_time, avg_time, total_distance FROM activities_details WHERE user_id = ?");
+        $stmt = $this->conn->prepare("SELECT track_id, id, activity_name, total_time, avg_time, total_distance, time_stamp FROM activities_details WHERE user_id = ?");
         $stmt->bind_param("s", $user_id);
         $stmt->execute();
         $aux= $stmt->get_result();
