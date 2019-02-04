@@ -19,6 +19,7 @@ import com.android.volley.Request.Method;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.licenta.tracker.activity.DisplayActivityDetails;
 import com.licenta.tracker.activity.LoginActivity;
 import com.licenta.tracker.activity.OSM_MapActivity;
 import com.licenta.tracker.app.AppConfig;
@@ -56,11 +57,6 @@ public class MainActivity extends AppCompatActivity {
 
         String tag_string_req = "get_info_activity";
         JSONObject data = new JSONObject();
-        try {
-            data.put("request", "activityDetails");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
 
         //Progress dialog
         pDialog = new ProgressDialog(this);
@@ -124,8 +120,6 @@ public class MainActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
-                Toast.makeText(getApplicationContext(), "Got a response back", Toast.LENGTH_LONG).show();
             }
         }, new Response.ErrorListener() {
             @Override
@@ -151,7 +145,11 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 for(int i=0;i<routeDetailsList.size();i++){
                     if(position == i){
-                        Toast.makeText(getApplicationContext(), "activity id: "+routeDetailsList.get(i), Toast.LENGTH_LONG).show();
+                        Intent activityDetails = new Intent(MainActivity.this, DisplayActivityDetails.class);
+                        activityDetails.putExtra("track_id", routeDetailsList.get(position).getTrackID());
+                        activityDetails.putExtra("user_id", userID);
+                        startActivity(activityDetails);
+                        finish();
                     }
                 }
             }

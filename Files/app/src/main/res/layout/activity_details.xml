@@ -5,7 +5,7 @@
     android:orientation="vertical">
 
     <org.osmdroid.views.MapView
-        android:id="@+id/saveActivityMap"
+        android:id="@+id/detailsActivityMap"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:padding="10dp"
@@ -13,7 +13,7 @@
         android:background="@drawable/border"/>
 
     <ListView
-        android:id="@+id/saveActivityListView"
+        android:id="@+id/detailsActivityListView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.6"
@@ -21,7 +21,7 @@
     </ListView>
 
     <GridView
-        android:id="@+id/gridViewImage"
+        android:id="@+id/detailsGridViewImage"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:columnWidth="115dp"
@@ -39,25 +39,23 @@
         android:layout_height="0dp"
         android:orientation="horizontal"
         android:layout_weight="0.13">
-
         <Button
-            android:id="@+id/deleteActivityButton"
+            android:id="@+id/detailsBackButton"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@color/btn_start_activity_bg"
+            style="@android:style/ButtonBar"
+            android:layout_weight="1"
+            android:text="back"
+            android:textSize="13sp" />
+        <Button
+            android:id="@+id/detailsDeleteItem"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:text="delete"
             android:background="@color/btn_logut_bg"
             style="@android:style/ButtonBar"
             android:layout_weight="1"
-            android:textSize="13sp" />
-
-        <Button
-            android:id="@+id/saveActivityButton"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:background="@color/btn_start_activity_bg"
-            style="@android:style/ButtonBar"
-            android:layout_weight="1"
-            android:text="save"
             android:textSize="13sp" />
     </LinearLayout>
 

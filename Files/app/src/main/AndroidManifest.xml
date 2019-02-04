@@ -47,6 +47,10 @@
         <service android:name=".helper.LocationServiceHandler" />
 
         <activity android:name=".activity.SaveTrackActivity"></activity>
+
+        <activity android:name=".activity.DisplayActivityDetails"></activity>
+
+        <activity android:name=".activity.DisplayImage"></activity>
     </application>
 
 </manifest>

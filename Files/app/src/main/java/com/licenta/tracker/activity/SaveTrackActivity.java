@@ -52,11 +52,8 @@ public class SaveTrackActivity extends AppCompatActivity {
     private ProgressDialog pDialog;
     private MapView saveActivityMapView = null;
     private IMapController mapController;
-
     private GridView imageGrid;
     private ArrayList<Bitmap> bitmapList;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

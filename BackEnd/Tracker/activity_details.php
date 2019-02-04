@@ -66,7 +66,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
             //print_r($activity_GPS_coordinates[0]["latitude"]);
             //print_r(sizeof($activity_GPS_coordinates)." ". sizeof($activity_elevation_points));
             //print_r(sizeof($distance_array));
-            //print_r($img_array);
+            //print_r($activity_images);
 
         }
     }

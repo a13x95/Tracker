@@ -43,7 +43,34 @@ if(strcasecmp($contentType, 'application/json') != 0){
             $response["activityDetails"] = $info;
             echo json_encode($response);
             exit();
-        } else{
+        } elseif(strcmp($decoded_json["request"],"activityInfo") == 0){
+            $activitiy_details = $db->getActivityDetails($decoded_json["user_id"]);
+            foreach ($activitiy_details as $row){
+                if($row["track_id"] === $decoded_json["track_id"]){
+                    $response["activity_name"] = $row["activity_name"];
+                    $response["total_time"] = $row["total_time"];
+                    $response["avg_time"]  = $row["avg_time"];
+                    $response["total_distance"]  = $row["total_distance"];
+                    $response["timestamp"]  = $row["time_stamp"];
+                }
+            }
+
+            //Get gps coordinates
+            $activity_GPS_coordinates = $db->getActivityGPSCoordinates($decoded_json["track_id"]);
+            $response["gps_data"] = $activity_GPS_coordinates;
+
+            //Get activity images
+            $activity_images = $db->getActivityImages($decoded_json["track_id"]);
+            $images = array();
+            $index = 0;
+            foreach ($activity_images as $key => $value){
+                array_push($images, array(("img".$index++) => $value));
+            }
+            $response["images"] = $images;
+
+            echo json_encode($response);
+            exit();
+        }else{
             $response["error"] = TRUE;
             $response["error_msg"] = "No Method was requested ".$decoded_json["request"]."activityDetails"." ".strcmp($decoded_json["request"],"activityDetails");
             echo json_encode($response);
