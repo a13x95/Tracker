@@ -1,6 +1,7 @@
 package com.licenta.tracker.activity;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.preference.PreferenceManager;
@@ -21,6 +22,7 @@ import com.android.volley.Request.Method;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.licenta.tracker.MainActivity;
 import com.licenta.tracker.R;
 import com.licenta.tracker.app.AppConfig;
 import com.licenta.tracker.app.AppController;
@@ -48,6 +50,7 @@ public class SaveTrackActivity extends AppCompatActivity {
 
     private JSONObject jsonGpsDataReceived;
     private Button btnSaveActivity;
+    private Button cancelActicity;
     private ListView listViewActivityInfo;
     private ProgressDialog pDialog;
     private MapView saveActivityMapView = null;
@@ -65,6 +68,7 @@ public class SaveTrackActivity extends AppCompatActivity {
         pDialog.setCancelable(false);
 
         btnSaveActivity = (Button) findViewById(R.id.saveActivityButton);
+        cancelActicity = (Button) findViewById(R.id.deleteActivityButton);
         listViewActivityInfo = (ListView) findViewById(R.id.saveActivityListView);
 
         imageGrid = (GridView) findViewById(R.id.gridViewImage);
@@ -91,6 +95,16 @@ public class SaveTrackActivity extends AppCompatActivity {
                 postJSONRequest(jsonGpsDataReceived);
             }
         });
+
+        cancelActicity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent mainActivity = new Intent(SaveTrackActivity.this, MainActivity.class);
+                startActivity(mainActivity);
+                finish();
+            }
+        });
+
 
     }
 
@@ -184,7 +198,10 @@ public class SaveTrackActivity extends AppCompatActivity {
             public void onResponse(JSONObject response) {
                 Log.d(TAG,"Saving data response: "+response.toString());
                 hideDialog();
-                Toast.makeText(getApplicationContext(), "it works", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Activity saved", Toast.LENGTH_LONG).show();
+                Intent mainActivity = new Intent(SaveTrackActivity.this, MainActivity.class);
+                startActivity(mainActivity);
+                finish();
             }
         }, new Response.ErrorListener() {
             @Override
@@ -204,6 +221,7 @@ public class SaveTrackActivity extends AppCompatActivity {
 
         //Adding request to the request queue
         AppController.getInstance().addToRequestQueue(jsonObjectRequest,tag_string_req);
+        //Redirect to home page
     }
 
     @Override

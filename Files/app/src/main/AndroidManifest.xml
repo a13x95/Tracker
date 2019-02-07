@@ -24,7 +24,8 @@
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:theme="@style/LoginStyle"
-            android:windowSoftInputMode="adjustPan">
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -36,21 +37,27 @@
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:theme="@style/RegisterStyle"
-            android:windowSoftInputMode="adjustPan" />
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:launchMode="singleTop" />
-        <activity android:name=".activity.OSM_MapActivity" />
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activity.OSM_MapActivity"
+                  android:screenOrientation="portrait"/>
 
         <!-- Add the service created in services package ! -->
         <service android:name=".helper.LocationServiceHandler" />
 
-        <activity android:name=".activity.SaveTrackActivity"></activity>
+        <activity android:name=".activity.SaveTrackActivity"
+                  android:screenOrientation="portrait"></activity>
 
-        <activity android:name=".activity.DisplayActivityDetails"></activity>
+        <activity android:name=".activity.DisplayActivityDetails"
+                  android:screenOrientation="portrait"></activity>
 
-        <activity android:name=".activity.DisplayImage"></activity>
+        <activity android:name=".activity.DisplayImage"
+                  android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

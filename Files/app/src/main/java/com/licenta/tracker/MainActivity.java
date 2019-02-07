@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "SIZE: " + jsonArray.length());
                         for(int i=0;i<jsonArray.length();i++){
                             JSONObject itemArray = jsonArray.getJSONObject(i);
-                            RouteDetails routeDetails = new RouteDetails(itemArray.getString("activityName"),itemArray.getString("totalTime"),itemArray.getString("totalDistance"),itemArray.getString("track_id"));
+                            RouteDetails routeDetails = new RouteDetails(itemArray.getString("activityName"),itemArray.getString("totalDistance"),itemArray.getString("totalTime"),itemArray.getString("track_id"));
                             routeDetailsList.add(routeDetails);
                             txtNrActivities.setText("Total Activities: "+routeDetailsList.size());
                         }

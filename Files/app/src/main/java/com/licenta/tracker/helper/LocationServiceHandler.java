@@ -39,7 +39,7 @@ public class LocationServiceHandler extends Service {
         longitude = 0.0;
         altitude = 0.0;
         speed = 0.0;
-        distanceContor = 0.0;
+        distanceContor = 1.0;
         locationStartPoint = null;
 
     }
@@ -145,7 +145,7 @@ public class LocationServiceHandler extends Service {
     }
 
     public double getDistanceContor(){
-        return distanceContor;
+        return (distanceContor/100);
     }
     public boolean getGpsStatus(){return gps;}
     public boolean getNetworkStatus(){return network;}

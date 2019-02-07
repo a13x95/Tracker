@@ -155,6 +155,35 @@ class DB_Functions {
         return $activity_details;
     }
 
+    public function deleteActivity($track_id){
+        $stmt=$this->conn->prepare("DELETE FROM tracking_activities WHERE track_id = ?");
+        $stmt->bind_param("s", $track_id);
+        $stmt->execute();
+        if($stmt->affected_rows == 0 or $stmt->affected_rows>0){
+            $stmt->close();
+            $stmt=$this->conn->prepare("DELETE FROM activities_details WHERE track_id = ?");
+            $stmt->bind_param("s", $track_id);
+            $stmt->execute();
+            if($stmt->affected_rows == 0 or $stmt->affected_rows>0){
+                $stmt->close();
+                $stmt=$this->conn->prepare("DELETE FROM tracking_images WHERE track_id = ?");
+                $stmt->bind_param("s", $track_id);
+                $stmt->execute();
+                if($stmt->affected_rows == 0 or $stmt->affected_rows>0){
+                    $stmt->close();
+                    return true;
+                } else {
+                    return false;
+                }
+            } else{
+                return false;
+            }
+
+        } else {
+            return false;
+        }
+    }
+
     public function  getActivityGPSCoordinates($track_id){
         $activity_gps_coordinates = array();
         $index = 0;

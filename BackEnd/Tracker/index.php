@@ -133,7 +133,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
                 </table>
             </div>
             <div class="col">
-                <div class="row">
+                <div class="row" >
                     <div class="table-responsive-sm" style="width: 50%;">
                         <table class="table table-light">
                             <thead class="thead">

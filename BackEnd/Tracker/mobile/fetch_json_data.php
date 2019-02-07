@@ -70,7 +70,20 @@ if(strcasecmp($contentType, 'application/json') != 0){
 
             echo json_encode($response);
             exit();
-        }else{
+        } elseif (strcmp($decoded_json["request"],"deleteActivity") == 0){
+            $result = $db -> deleteActivity($decoded_json["track_id"]);
+            if($result == true){
+                echo json_encode($response);
+                exit();
+            } else {
+                $response["error"] = TRUE;
+                $response["error_msg"] = "Deletion of rows from tables failed!";
+                echo json_encode($response);
+                exit();
+            }
+
+        }
+        else{
             $response["error"] = TRUE;
             $response["error_msg"] = "No Method was requested ".$decoded_json["request"]."activityDetails"." ".strcmp($decoded_json["request"],"activityDetails");
             echo json_encode($response);

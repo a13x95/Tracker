@@ -59,6 +59,8 @@ public class DisplayActivityDetails extends AppCompatActivity {
     private String track_id ="";
     private String userID ="";
     private int childPosition =0;
+    private JSONObject data;
+    private String tag_string_req ="";
 
 
     @Override
@@ -66,8 +68,8 @@ public class DisplayActivityDetails extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
 
-        String tag_string_req = "get_details_activitiy";
-        JSONObject data = new JSONObject();
+        tag_string_req = "get_details_activitiy";
+        data = new JSONObject();
         bitmapList = new ArrayList<Bitmap>();
         //Progress dialog
         pDialog = new ProgressDialog(this);
@@ -101,7 +103,7 @@ public class DisplayActivityDetails extends AppCompatActivity {
         btnDeleteItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                deleteTrack(track_id);
             }
         });
 
@@ -225,6 +227,56 @@ public class DisplayActivityDetails extends AppCompatActivity {
         });
 
         detailMapView.getOverlayManager().add(polyline);
+    }
+
+    public void deleteTrack(String track_id){
+        tag_string_req = "get_delete_track";
+        try {
+            data.put("request", "deleteActivity");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        pDialog.setMessage("Loading... ");
+        showDialog();
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, AppConfig.URL_FETCH_DATA, data, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.d(TAG, "Response: " + response.toString());
+                hideDialog();
+
+                try {
+                    JSONObject jsonObject = new JSONObject(response.toString());
+                    boolean error = jsonObject.getBoolean("error");
+                    if(!error){
+                        Toast.makeText(getApplicationContext(), "Track successfully deleted!", Toast.LENGTH_LONG).show();
+                        Intent mainActivity = new Intent(DisplayActivityDetails.this, MainActivity.class);
+                        startActivity(mainActivity);
+                        finish();
+                    } else{
+                        Toast.makeText(getApplicationContext(), "JSON response has errors", Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "Sending request server error message: " + error.getMessage());
+                hideDialog();
+                Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Content-Type", "application/json");
+                return params;
+            }
+        };
+
+        //Adding the request to request queue
+        AppController.getInstance().addToRequestQueue(jsonObjectRequest,tag_string_req);
     }
 
     private Bitmap getBitmapFromString(String jsonString){

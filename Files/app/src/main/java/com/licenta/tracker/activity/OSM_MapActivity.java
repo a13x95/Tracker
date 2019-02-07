@@ -41,6 +41,7 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -120,9 +121,9 @@ public class OSM_MapActivity extends AppCompatActivity {
         //Context context = getApplicationContext();//load/initialize the osmdroid configuration,
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));//used for tiles
         setContentView(R.layout.activity_osm_map);
-        gpsLatitude = (TextView)findViewById(R.id.gps_latitude);
-        gpsLongitude = (TextView)findViewById(R.id.gps_longitude);
-        txtGPSCurrentDistance = (TextView) findViewById(R.id.current_distance);
+        gpsLatitude = (TextView)findViewById(R.id.gps_latitude); gpsLatitude.setText("Lat: 0");
+        gpsLongitude = (TextView)findViewById(R.id.gps_longitude);gpsLongitude.setText("Lon: 0");
+        txtGPSCurrentDistance = (TextView) findViewById(R.id.current_distance); txtGPSCurrentDistance.setText("Distance: 0m");
         txtElapsedTime = (TextView) findViewById(R.id.time_contor);
         btnStopActivity = (Button) findViewById(R.id.stop_activity);
         btnCapturePhoto = (Button) findViewById(R.id.take_a_photo);
@@ -144,7 +145,7 @@ public class OSM_MapActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //In this event we want  to open a new activity that will contain all the data that has been tracked
                 try {
-                    jsonObject.put("total_distance", String.valueOf(mLocationServiceHandler.getDistanceContor()));
+                    jsonObject.put("total_distance", String.valueOf(new DecimalFormat("#.##").format(mLocationServiceHandler.getDistanceContor()/1000)));
                     jsonObject.put("total_time", getFormatInMilliseconds(timeInMilliseconds));
                     jsonObject.put("avg_time", getAveragePeace(Integer.parseInt(String.valueOf(mLocationServiceHandler.getDistanceContor()).split("\\.")[0]), getSeconds(getFormatInMilliseconds(timeInMilliseconds))));
                     //jsonObject.put("avg_time", getAverageTime(4500,getSeconds("00:24:30"))); //example to check functions
@@ -236,19 +237,19 @@ public class OSM_MapActivity extends AppCompatActivity {
                             setCurrentSpeed(mLocationServiceHandler.getSpeed());
                             setCurrentLatitude(geoPoint.getLatitude());
                             setCurrentLongitude(geoPoint.getLongitude());
-                            txtGPSCurrentDistance.setText(String.valueOf(mLocationServiceHandler.getDistanceContor()) + " m");
+                            txtGPSCurrentDistance.setText("Distance: "+String.valueOf( new DecimalFormat("#").format(mLocationServiceHandler.getDistanceContor())) + " m");
                             mapController.setCenter(geoPoint);
-                            gpsLatitude.setText(String.valueOf(geoPoint.getLatitude()));
-                            gpsLongitude.setText(String.valueOf(geoPoint.getLongitude()));
+                            gpsLatitude.setText("Lat: "+String.valueOf( new DecimalFormat("#.######").format(geoPoint.getLatitude())));
+                            gpsLongitude.setText("Lon: "+String.valueOf( new DecimalFormat("#.######").format(geoPoint.getLongitude())));
                             createJSON(geoPoint.getLatitude(), geoPoint.getLongitude(), geoPoint.getAltitude(), getCurrentSpeed(),getTimestamp("dd-MM-yyyy hh:mm:ss"));
                             //showLiveTrack(geoPointsList);
                         }else if(geoPointsList.size() > 0 && !(geoPointsList.get(geoPointsList.size()-1).equals(geoPoint))){//add geoPoint to list only if the current one is different than previous
                                 geoPointsList.add(geoPoint);
                                 setCurrentSpeed(mLocationServiceHandler.getSpeed());
-                                txtGPSCurrentDistance.setText(String.valueOf(mLocationServiceHandler.getDistanceContor()) + " m");
+                                txtGPSCurrentDistance.setText("Distance: "+String.valueOf( new DecimalFormat("#").format(mLocationServiceHandler.getDistanceContor())) + " m");
                                 mapController.setCenter(geoPoint);
-                                gpsLatitude.setText(String.valueOf(geoPoint.getLatitude()));
-                                gpsLongitude.setText(String.valueOf(geoPoint.getLongitude()));
+                                gpsLatitude.setText("Lat: "+String.valueOf( new DecimalFormat("#.######").format(geoPoint.getLatitude())));
+                                gpsLongitude.setText("Lon: "+String.valueOf( new DecimalFormat("#.######").format(geoPoint.getLongitude())));
                                 createJSON(geoPoint.getLatitude(), geoPoint.getLongitude(), geoPoint.getAltitude(), getCurrentSpeed(),getTimestamp("dd-MM-yyyy hh:mm:ss"));
                                 //showLiveTrack(geoPointsList);
                         }
@@ -317,7 +318,7 @@ public class OSM_MapActivity extends AppCompatActivity {
         @Override
         public void run() {
             timeInMilliseconds = SystemClock.uptimeMillis() - startTime;
-            txtElapsedTime.setText(getFormatInMilliseconds(timeInMilliseconds));
+            txtElapsedTime.setText("Time: "+getFormatInMilliseconds(timeInMilliseconds));
             timerHandler.postDelayed(this, 1000);
         }
     };
@@ -353,7 +354,7 @@ public class OSM_MapActivity extends AppCompatActivity {
     public Double getCurrentLongitude() {return currentLongitude;}
 
     private String getAveragePeace(int distanceInMeters, int timeInSeconds){
-        if(distanceInMeters>0){
+        if(distanceInMeters>0 && timeInSeconds >0){
             double division = ((double)timeInSeconds)/distanceInMeters;
             String minutes = String.valueOf(((double)Integer.parseInt(String.valueOf(division).split("\\.")[1].substring(0,3)))/60).split("\\.")[0];
             String seconds  = String.valueOf(Integer.parseInt(String.valueOf(division).split("\\.")[1].substring(0,3)) - (Integer.parseInt(minutes) *60));

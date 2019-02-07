@@ -54,12 +54,10 @@ public class CustomListAdapter extends BaseAdapter {
         TextView txtTotalTime = (TextView) convertView.findViewById(R.id.txtTotalTime);
 
         RouteDetails r = activityDetailsList.get(position);
-        try {
-            txtActivityName.setText(r.getActivityName());
-        }catch (Exception e){}
 
-        txtTotalDistance.setText(r.getTotalDistance());
-        txtTotalTime.setText(r.getTotaltime());
+        txtActivityName.setText(r.getActivityName());
+        txtTotalDistance.setText(r.getTotalDistance() + " KM");
+        txtTotalTime.setText(r.getTotaltime() + " s");
 
         return convertView;
     }

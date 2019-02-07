@@ -211,7 +211,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
                     </tr>
                     </thead>
                     <tbody>
-                        <tr><td scope="row"><?php echo $total_time; ?></td></tr>
+                        <tr><td scope="row"><?php echo $total_time." s"; ?></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -226,7 +226,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !isset($_S
                     </tr>
                     </thead>
                     <tbody>
-                        <tr><td scope="row"><?php echo $total_distance; ?></td></tr>
+                        <tr><td scope="row"><?php echo $total_distance." KM"; ?></td></tr>
                     </tbody>
                 </table>
             </div>
