@@ -1,8 +1,5 @@
 package com.licenta.tracker.helper;
-/*
-* This class maintains session data across the app using the Shared Preferences,
-* by storing a boolean flag "isLoggedIn" to check the login status.
-* */
+//https://www.androidhive.info/2012/01/android-login-and-registration-with-php-mysql-and-sqlite/
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;

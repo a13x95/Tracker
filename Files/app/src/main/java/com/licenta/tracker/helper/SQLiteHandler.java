@@ -1,9 +1,5 @@
 package com.licenta.tracker.helper;
-/*
-* This class takes care of storing user data in SQLite database.
-* Whenever we need to get the logged in user information,
-* we are fetching from SQLite instead of making request to server.
-* */
+//https://www.androidhive.info/2012/01/android-login-and-registration-with-php-mysql-and-sqlite/
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -59,9 +55,6 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    /**
-     * Storing user details in database
-     * */
     public void addUser(String name, String email, String uid, String created_at) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -78,9 +71,6 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         Log.d(TAG, "New user inserted into sqlite: " + id);
     }
 
-    /**
-     * Getting user data from database
-     * */
     public HashMap<String, String> getUserDetails() {
         HashMap<String, String> user = new HashMap<String, String>();
         String selectQuery = "SELECT  * FROM " + TABLE_USER;
@@ -103,9 +93,6 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         return user;
     }
 
-    /**
-     * Recreate database Delete all tables and create them again
-     * */
     public void deleteUsers() {
         SQLiteDatabase db = this.getWritableDatabase();
         // Delete All Rows

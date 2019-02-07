@@ -1,5 +1,5 @@
 package com.licenta.tracker.activity;
-
+//https://www.androidhive.info/2012/01/android-login-and-registration-with-php-mysql-and-sqlite/
 
 import android.app.ProgressDialog;
 import android.content.Intent;
