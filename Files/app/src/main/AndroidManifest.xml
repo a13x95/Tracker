@@ -45,10 +45,10 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"/>
         <activity android:name=".activity.OSM_MapActivity"
-                  android:screenOrientation="portrait"/>
+                  android:screenOrientation="portrait" />
 
         <!-- Add the service created in services package ! -->
-        <service android:name=".helper.LocationServiceHandler" />
+        <service android:name=".helper.LocationServiceHandler"/>
 
         <activity android:name=".activity.SaveTrackActivity"
                   android:screenOrientation="portrait"></activity>

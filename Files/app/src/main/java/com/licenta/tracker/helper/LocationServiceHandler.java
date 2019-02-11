@@ -30,6 +30,7 @@ public class LocationServiceHandler extends Service {
     double altitude;
     double speed;
     double distanceContor;
+    private boolean bound = false;
     Location locationStartPoint;
 
     public LocationServiceHandler() {
@@ -41,7 +42,6 @@ public class LocationServiceHandler extends Service {
         speed = 0.0;
         distanceContor = 1.0;
         locationStartPoint = null;
-
     }
 
     @Override
@@ -120,7 +120,13 @@ public class LocationServiceHandler extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        bound = true;
         return gpsLocationBinder;
+    }
+
+    @Override
+    public void onRebind(Intent intent) {
+        bound = true;
     }
 
     @Override
@@ -128,6 +134,7 @@ public class LocationServiceHandler extends Service {
         super.onDestroy();
         if (locationManager != null){
             locationManager.removeUpdates(locationListener);
+            bound = false;
         }
     }
 
@@ -143,9 +150,11 @@ public class LocationServiceHandler extends Service {
         gpsCoordinates.setAltitude(altitude);
         return gpsCoordinates;
     }
-
+    public void setDistanceContor(double distanceContor) {
+        this.distanceContor = distanceContor;
+    }
     public double getDistanceContor(){
-        return (distanceContor/100);
+        return (distanceContor/10);
     }
     public boolean getGpsStatus(){return gps;}
     public boolean getNetworkStatus(){return network;}

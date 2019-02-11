@@ -137,7 +137,7 @@ public class SaveTrackActivity extends AppCompatActivity {
         saveActivityMapView.setBuiltInZoomControls(true);
         saveActivityMapView.setMultiTouchControls(true);
         mapController = saveActivityMapView.getController();
-        mapController.setZoom(15);
+        mapController.setZoom(17);
         mapController.setCenter(geoPointsList.get(0));
         polyline.setPoints(geoPointsList);
         polyline.setWidth(3f);

@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.location.LocationManager;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.PersistableBundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
@@ -54,7 +55,7 @@ public class OSM_MapActivity extends AppCompatActivity {
     private MapView map = null;
     private IMapController mapController;
     private MyLocationNewOverlay locationOverlay;
-    private GeoPoint geoPoint;
+    private GeoPoint geoPoint = new GeoPoint(0.0,0.0,0.0);
     private TextView gpsLatitude;
     private TextView gpsLongitude;
     private TextView txtElapsedTime;
@@ -69,32 +70,35 @@ public class OSM_MapActivity extends AppCompatActivity {
     private JSONArray jsonArray = new JSONArray();
     private JSONArray imagesJsonArray = new JSONArray();
     private JSONObject jsonObject = new JSONObject();
+    private Double currentDistance = 0.0;
     private Double currentSpeed = 0.0;
     private Double currentLatitude = 0.0;
     private Double currentLongitude = 0.0;
     private long startTime, timeInMilliseconds = 0;
     private Handler timerHandler = new Handler();
+    private Handler locationHandler = new Handler();
     private int imageContor = 0;
 
     LocationServiceHandler mLocationServiceHandler = new LocationServiceHandler();
 
-    ServiceConnection mServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            LocationServiceHandler.GpsLocationBinder gpsLocationBinder = (LocationServiceHandler.GpsLocationBinder)service;
-            mLocationServiceHandler = gpsLocationBinder.getBinder();
-            bound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            bound = false;
-        }
-    };
-
     @Override
     protected void onStart() {
         super.onStart();
+
+        ServiceConnection mServiceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                LocationServiceHandler.GpsLocationBinder gpsLocationBinder = (LocationServiceHandler.GpsLocationBinder)service;
+                mLocationServiceHandler = gpsLocationBinder.getBinder();
+                bound = true;
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                bound = false;
+            }
+        };
+
         db = new SQLiteHandler(getApplicationContext());
         try {
             jsonObject.put("activity_name", getTimestamp("EEEE dd-MM-yyyy") + " track"); // Track name
@@ -109,21 +113,34 @@ public class OSM_MapActivity extends AppCompatActivity {
         if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
             showSetingsAllert();
         }
+
         Intent intent = new Intent(this, LocationServiceHandler.class);
         bindService(intent,mServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+
+        outState.putDouble("CurrentDistance", getCurrentDistance());
+        outState.putDouble("CurrentLatitude", getCurrentLatitude());
+        outState.putDouble("CurrentLongitude", getCurrentLongitude());
+        super.onSaveInstanceState(outState, outPersistentState);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        geoPoint = new GeoPoint(0.0,0.0,0.0);
-
+        if(savedInstanceState != null){
+            mLocationServiceHandler.setDistanceContor(savedInstanceState.getDouble("CurrentDistance"));
+//            currentLongitude = savedInstanceState.getDouble("CurrentLatitude");
+//            currentLongitude = savedInstanceState.getDouble("CurrentLongitude");
+        }
         //Context context = getApplicationContext();//load/initialize the osmdroid configuration,
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));//used for tiles
         setContentView(R.layout.activity_osm_map);
-        gpsLatitude = (TextView)findViewById(R.id.gps_latitude); gpsLatitude.setText("Lat: 0");
-        gpsLongitude = (TextView)findViewById(R.id.gps_longitude);gpsLongitude.setText("Lon: 0");
-        txtGPSCurrentDistance = (TextView) findViewById(R.id.current_distance); txtGPSCurrentDistance.setText("Distance: 0m");
+        gpsLatitude = (TextView)findViewById(R.id.gps_latitude); //gpsLatitude.setText("Lat: 0");
+        gpsLongitude = (TextView)findViewById(R.id.gps_longitude);//gpsLongitude.setText("Lon: 0");
+        txtGPSCurrentDistance = (TextView) findViewById(R.id.current_distance); //txtGPSCurrentDistance.setText("Distance: 0m");
         txtElapsedTime = (TextView) findViewById(R.id.time_contor);
         btnStopActivity = (Button) findViewById(R.id.stop_activity);
         btnCapturePhoto = (Button) findViewById(R.id.take_a_photo);
@@ -133,7 +150,7 @@ public class OSM_MapActivity extends AppCompatActivity {
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
         mapController = map.getController();
-        mapController.setZoom(15);
+        mapController.setZoom(17);
         locationOverlay.enableMyLocation();
         map.getOverlayManager().add(locationOverlay);
         startTimer();
@@ -145,10 +162,10 @@ public class OSM_MapActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //In this event we want  to open a new activity that will contain all the data that has been tracked
                 try {
-                    jsonObject.put("total_distance", String.valueOf(new DecimalFormat("#.##").format(mLocationServiceHandler.getDistanceContor()/1000)));
+                    jsonObject.put("total_distance", String.valueOf(new DecimalFormat("#.##").format(getCurrentDistance()/1000)));
                     jsonObject.put("total_time", getFormatInMilliseconds(timeInMilliseconds));
-                    jsonObject.put("avg_time", getAveragePeace(Integer.parseInt(String.valueOf(mLocationServiceHandler.getDistanceContor()).split("\\.")[0]), getSeconds(getFormatInMilliseconds(timeInMilliseconds))));
-                    //jsonObject.put("avg_time", getAverageTime(4500,getSeconds("00:24:30"))); //example to check functions
+                    jsonObject.put("avg_time", getAveragePeace(Integer.parseInt(String.valueOf(mLocationServiceHandler.getDistanceContor()).split("\\.")[0]), getFormatInMilliseconds(timeInMilliseconds)));
+                    //jsonObject.put("avg_time", getAveragePeace(4700,getFormatInMilliseconds(1823000))); //example to check functions
                     jsonObject.put("gps_data", jsonArray);
                     jsonObject.put("images", imagesJsonArray);
                     Log.d("JSON", jsonObject.toString());
@@ -221,37 +238,48 @@ public class OSM_MapActivity extends AppCompatActivity {
 
     private void showGPSCoordinates() {
         /*
-        * This method will get the gps data to be performed on a different thread
-        * */
+         * This method will get the gps data to be performed on a different thread
+         * */
 
         final Handler handler = new Handler();
         handler.post(new Runnable() {
             @Override
             public void run() {
-
                 if(mLocationServiceHandler !=null){
                     geoPoint = mLocationServiceHandler.getLocation();
                     if(geoPoint.getLatitude() != 0.0 && geoPoint.getLongitude() != 0.0){
                         if(geoPointsList.size() == 0) {//add first element to list
                             geoPointsList.add(geoPoint);
+
                             setCurrentSpeed(mLocationServiceHandler.getSpeed());
                             setCurrentLatitude(geoPoint.getLatitude());
                             setCurrentLongitude(geoPoint.getLongitude());
-                            txtGPSCurrentDistance.setText("Distance: "+String.valueOf( new DecimalFormat("#").format(mLocationServiceHandler.getDistanceContor())) + " m");
+                            setCurrentDistance(mLocationServiceHandler.getDistanceContor());
+
                             mapController.setCenter(geoPoint);
-                            gpsLatitude.setText("Lat: "+String.valueOf( new DecimalFormat("#.######").format(geoPoint.getLatitude())));
-                            gpsLongitude.setText("Lon: "+String.valueOf( new DecimalFormat("#.######").format(geoPoint.getLongitude())));
-                            createJSON(geoPoint.getLatitude(), geoPoint.getLongitude(), geoPoint.getAltitude(), getCurrentSpeed(),getTimestamp("dd-MM-yyyy hh:mm:ss"));
+
+                            txtGPSCurrentDistance.setText("Distance: "+String.valueOf( new DecimalFormat("#").format(getCurrentDistance())) + " m");
+                            gpsLatitude.setText("Lat: "+String.valueOf( new DecimalFormat("#.######").format(getCurrentLatitude())));
+                            gpsLongitude.setText("Lon: "+String.valueOf( new DecimalFormat("#.######").format(getCurrentLongitude())));
+                            createJSON(getCurrentLatitude(), getCurrentLongitude(), geoPoint.getAltitude(), getCurrentSpeed(),getTimestamp("dd-MM-yyyy hh:mm:ss"));
+
                             //showLiveTrack(geoPointsList);
                         }else if(geoPointsList.size() > 0 && !(geoPointsList.get(geoPointsList.size()-1).equals(geoPoint))){//add geoPoint to list only if the current one is different than previous
-                                geoPointsList.add(geoPoint);
-                                setCurrentSpeed(mLocationServiceHandler.getSpeed());
-                                txtGPSCurrentDistance.setText("Distance: "+String.valueOf( new DecimalFormat("#").format(mLocationServiceHandler.getDistanceContor())) + " m");
-                                mapController.setCenter(geoPoint);
-                                gpsLatitude.setText("Lat: "+String.valueOf( new DecimalFormat("#.######").format(geoPoint.getLatitude())));
-                                gpsLongitude.setText("Lon: "+String.valueOf( new DecimalFormat("#.######").format(geoPoint.getLongitude())));
-                                createJSON(geoPoint.getLatitude(), geoPoint.getLongitude(), geoPoint.getAltitude(), getCurrentSpeed(),getTimestamp("dd-MM-yyyy hh:mm:ss"));
-                                //showLiveTrack(geoPointsList);
+                            geoPointsList.add(geoPoint);
+
+                            setCurrentSpeed(mLocationServiceHandler.getSpeed());
+                            setCurrentLatitude(geoPoint.getLatitude());
+                            setCurrentLongitude(geoPoint.getLongitude());
+                            setCurrentDistance(mLocationServiceHandler.getDistanceContor());
+
+                            mapController.setCenter(geoPoint);
+
+                            txtGPSCurrentDistance.setText("Distance: "+String.valueOf( new DecimalFormat("#").format(getCurrentDistance())) + " m");
+                            gpsLatitude.setText("Lat: "+String.valueOf( new DecimalFormat("#.######").format(getCurrentLatitude())));
+                            gpsLongitude.setText("Lon: "+String.valueOf( new DecimalFormat("#.######").format(getCurrentLongitude())));
+                            createJSON(getCurrentLatitude(), getCurrentLongitude(), geoPoint.getAltitude(), getCurrentSpeed(),getTimestamp("dd-MM-yyyy hh:mm:ss"));
+
+                            //showLiveTrack(geoPointsList);
                         }
                     }
                 }
@@ -337,6 +365,14 @@ public class OSM_MapActivity extends AppCompatActivity {
         return dateFormat.format(calendar.getTime());
     }
 
+
+    public Double getCurrentDistance() {
+        return currentDistance;
+    }
+
+    public void setCurrentDistance(Double currentDistance) {
+        this.currentDistance = currentDistance;
+    }
     public Double getCurrentSpeed() {
         return currentSpeed;
     }
@@ -353,13 +389,20 @@ public class OSM_MapActivity extends AppCompatActivity {
 
     public Double getCurrentLongitude() {return currentLongitude;}
 
-    private String getAveragePeace(int distanceInMeters, int timeInSeconds){
-        if(distanceInMeters>0 && timeInSeconds >0){
-            double division = ((double)timeInSeconds)/distanceInMeters;
-            String minutes = String.valueOf(((double)Integer.parseInt(String.valueOf(division).split("\\.")[1].substring(0,3)))/60).split("\\.")[0];
-            String seconds  = String.valueOf(Integer.parseInt(String.valueOf(division).split("\\.")[1].substring(0,3)) - (Integer.parseInt(minutes) *60));
+    private String getAveragePeace(int distanceInMeters, String timer){
+        int hours = Integer.parseInt(timer.split(":")[0]);
+        int minutes = Integer.parseInt(timer.split(":")[1]);
+        int seconds = Integer.parseInt(timer.split(":")[2]);
 
-            return minutes + ":" + seconds;
+        if(distanceInMeters>0){
+            double kilometers = ((double)distanceInMeters) /1000;
+
+            int timeInSeconds = (minutes*60) + seconds;
+            int totalAvgSec = (int) (timeInSeconds / kilometers);
+            int avgMinutes = totalAvgSec/60; //Here I'm getting the minutes
+            int avgSeconds = totalAvgSec - (avgMinutes*60);
+            String result = avgMinutes + ":" + avgSeconds;
+            return result;
         }
         else return (getFormatInMilliseconds(timeInMilliseconds));
     }
@@ -374,7 +417,7 @@ public class OSM_MapActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         if (bound){
-            unbindService(mServiceConnection);
+            //unbindService(mServiceConnection);
             bound = false;
         }
     }
@@ -391,6 +434,4 @@ public class OSM_MapActivity extends AppCompatActivity {
         //this will refresh the osmdroid configuration on pause.
         map.onPause();
     }
-
-
 }

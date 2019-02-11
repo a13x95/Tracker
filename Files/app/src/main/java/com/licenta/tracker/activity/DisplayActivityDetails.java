@@ -1,5 +1,6 @@
 package com.licenta.tracker.activity;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -12,10 +13,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -41,6 +44,7 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Polyline;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +54,8 @@ public class DisplayActivityDetails extends AppCompatActivity {
     private static String TAG = DisplayActivityDetails.class.getSimpleName();
     private Button btnBack;
     private Button btnDeleteItem;
+    private Button closeDialog;
+    private ImageView imageView;
     private MapView detailMapView = null;
     private IMapController mapController;
     private ProgressDialog pDialog;
@@ -61,6 +67,7 @@ public class DisplayActivityDetails extends AppCompatActivity {
     private int childPosition =0;
     private JSONObject data;
     private String tag_string_req ="";
+    private Dialog MyDialog;
 
 
     @Override
@@ -142,20 +149,6 @@ public class DisplayActivityDetails extends AppCompatActivity {
                             String bitmapString = jsonBitmapString.getString(key);
                             bitmapList.add(getBitmapFromString(bitmapString));
                             imageGrid.setAdapter(new ImageAdapter(getApplicationContext(), bitmapList));
-                            imageGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                @Override
-                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                    for(int i=0;i<bitmapList.size();i++){
-                                        if(i==position){
-//                                            //Toast.makeText(getApplicationContext(), i, Toast.LENGTH_LONG).show();
-//                                            Intent imgActivity = new Intent(DisplayActivityDetails.this, DisplayImage.class);
-//                                            imgActivity.putExtra("bitmapString", bitmapList.get(i));
-//                                            startActivity(imgActivity);
-//                                            finish();
-                                        }
-                                    }
-                                }
-                            });
                         }
 
                     } else{
@@ -183,6 +176,17 @@ public class DisplayActivityDetails extends AppCompatActivity {
 
         //Adding the request to request queue
         AppController.getInstance().addToRequestQueue(jsonObjectRequest,tag_string_req);
+
+        imageGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                int selectedItem = Integer.parseInt(String.valueOf(parent.getItemIdAtPosition(position)));
+                CustomDialog(bitmapList.get(selectedItem));
+
+//                Log.d(TAG, "bitmapImg: " +bitmapList.size());
+//                Toast.makeText(getApplicationContext(),selectedItem + "->" + bitmapList.size(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     public void setChildPosition(int i){
@@ -293,5 +297,24 @@ public class DisplayActivityDetails extends AppCompatActivity {
     private void hideDialog(){
         if(pDialog.isShowing())
             pDialog.dismiss();
+    }
+
+    public void CustomDialog(Bitmap bitmap){
+        MyDialog = new Dialog(this);
+        MyDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        MyDialog.setContentView(R.layout.displayimage);
+        MyDialog.show();
+        MyDialog.setTitle("Image");
+
+        imageView = (ImageView) MyDialog.findViewById(R.id.displayImage);
+        imageView.setImageBitmap(bitmap);
+        closeDialog = (Button) MyDialog.findViewById(R.id.btnCloseDialog);
+        closeDialog.setEnabled(true);
+        closeDialog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MyDialog.cancel();
+            }
+        });
     }
 }
